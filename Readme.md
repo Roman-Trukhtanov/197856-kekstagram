@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Роман Трухтанов](https://up.htmlacademy.ru/javascript/14/user/197856).
-* Наставник: `Неизвестно`.
+* Наставник: [Валерия Зеленая](https://up.htmlacademy.ru/javascript/14/user/425717).
 
 ---
 
