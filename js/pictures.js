@@ -121,13 +121,15 @@ var allPictures = generatePictures(NUMBER_OF_PICTURES, MIN_LIKES, MAX_LIKES);
 
 picturesContainer.appendChild(fillFragment(allPictures));
 
+var pictureOverlay = getPictureOverlay(allPictures[PICTURE_INDEX]);
+
 /* Скрывает блок с количеством комментариев внутри блока с большой картинкой */
-var commentCountElement = document.querySelector('.social__comment-count');
+var commentCountElement = pictureOverlay.querySelector('.social__comment-count');
 commentCountElement.classList.add('visually-hidden');
 
 /* Скрывает кнопку 'загрузить еще' внутри блока с большой картинкой */
-var loadMoreBtn = document.querySelector('.social__loadmore');
+var loadMoreBtn = pictureOverlay.querySelector('.social__loadmore');
 loadMoreBtn.classList.add('visually-hidden');
 
-var pictureOverlay = getPictureOverlay(allPictures[PICTURE_INDEX]);
+
 pictureOverlay.classList.remove('hidden');
