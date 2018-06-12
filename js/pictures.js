@@ -131,5 +131,5 @@ commentCountElement.classList.add('visually-hidden');
 var loadMoreBtn = pictureOverlay.querySelector('.social__loadmore');
 loadMoreBtn.classList.add('visually-hidden');
 
-
+/* Показывает блок с большой картинкой  */
 pictureOverlay.classList.remove('hidden');
