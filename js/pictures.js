@@ -27,10 +27,10 @@ var pictureTemplate = document.querySelector('#picture').content;
 
 var picturesContainer = document.querySelector('.pictures');
 
-var generatePictures = function (amountPictures, minLikes, maxLikes) {
+var generatePictures = function (picturesAmount, minLikes, maxLikes) {
   var pictures = [];
 
-  for (var i = 0; i < amountPictures; i++) {
+  for (var i = 0; i < picturesAmount; i++) {
     pictures.push({
       'url': 'photos/' + (i + 1) + '.jpg',
       'likes': getRandomInt(minLikes, maxLikes),
@@ -124,8 +124,8 @@ picturesContainer.appendChild(fillFragment(allPictures));
 var pictureOverlay = getPictureOverlay(allPictures[PICTURE_INDEX]);
 
 /* Скрывает блок с количеством комментариев внутри блока с большой картинкой */
-var commentCountElement = pictureOverlay.querySelector('.social__comment-count');
-commentCountElement.classList.add('visually-hidden');
+var commentsCountElement = pictureOverlay.querySelector('.social__comment-count');
+commentsCountElement.classList.add('visually-hidden');
 
 /* Скрывает кнопку 'загрузить еще' внутри блока с большой картинкой */
 var loadMoreBtn = pictureOverlay.querySelector('.social__loadmore');
