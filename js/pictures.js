@@ -131,5 +131,151 @@ commentsCountElement.classList.add('visually-hidden');
 var loadMoreBtn = pictureOverlay.querySelector('.social__loadmore');
 loadMoreBtn.classList.add('visually-hidden');
 
-/* Показывает блок с большой картинкой  */
-pictureOverlay.classList.remove('hidden');
+/*
+*
+*
+*
+* Добавление новой картинки в галерею (c применением эффектов, добавлением комментариев и хеш-тегов */
+
+var uploadFileElement = document.querySelector('#upload-file');
+var pictureEditorElement = document.querySelector('.img-upload__overlay');
+var closePictureEditorBtn = pictureEditorElement.querySelector('#upload-cancel');
+
+var effectsElement = pictureEditorElement.querySelector('.img-upload__effects');
+var checkedEffect = effectsElement.querySelector('.effects__radio:checked').value;
+
+var effectProgressElement = pictureEditorElement.querySelector('.img-upload__scale');
+var effectValueElement = effectProgressElement.querySelector('.scale__value');
+var pinElement = effectProgressElement.querySelector('.scale__pin');
+var levelElement = effectProgressElement.querySelector('.scale__level');
+
+var previewElement = pictureEditorElement.querySelector('.img-upload__preview');
+var previewPictureElement = previewElement.querySelector('img');
+
+/* Объект-мапа, со всеми поддреживаемыми эффектами */
+var effects = {
+  'chrome': function (value) {
+    var maxValue = 1;
+    var coefficient = maxValue * value / 100;
+
+    return 'grayscale(' + coefficient + ')';
+  },
+
+  'sepia': function (value) {
+    var maxValue = 1;
+    var coefficient = maxValue * value / 100;
+
+    return 'sepia(' + coefficient + ')';
+  },
+
+  'marvin': function (value) {
+    return 'invert(' + value + '%)';
+  },
+
+  'phobos': function (value) {
+    var maxValue = 3;
+    var coefficient = maxValue * value / 100;
+
+    return 'blur(' + coefficient + 'px)';
+  },
+
+  'heat': function (value) {
+    var coefficient = 1;
+    var maxValue = 3;
+
+    if (value !== 0) {
+      coefficient = maxValue * value / 100;
+    }
+
+    return 'brightness(' + coefficient + ')';
+  }
+};
+
+var changeProgress = function (value) {
+  pinElement.style.left = value + '%';
+  levelElement.style.width = value + '%';
+};
+
+var applyEffect = function (effectName) {
+  previewPictureElement.style.filter = effects[effectName](effectValueElement.value);
+};
+
+var openPictureEditor = function () {
+  effectValueElement.value = 100;
+  changeProgress(effectValueElement.value);
+
+  applyEffect(checkedEffect);
+
+  pictureEditorElement.classList.remove('hidden');
+};
+
+var closePictureEditor = function () {
+  pictureEditorElement.classList.add('hidden');
+  uploadFileElement.value = '';
+};
+
+var onEffectsElementChange = function (evt) {
+  effectValueElement.value = 100;
+  changeProgress(effectValueElement.value);
+
+  var currentEffectName = evt.target.value;
+
+  if (currentEffectName === 'none') {
+    previewPictureElement.style.filter = 'none';
+
+    effectProgressElement.classList.add('hidden');
+  } else {
+    effectProgressElement.classList.remove('hidden');
+
+    applyEffect(currentEffectName);
+  }
+};
+
+effectsElement.addEventListener('change', onEffectsElementChange);
+
+uploadFileElement.addEventListener('change', function () {
+  openPictureEditor();
+});
+
+closePictureEditorBtn.addEventListener('click', function () {
+  closePictureEditor();
+});
+
+/*
+*
+*
+* Изменение размера картинке */
+
+var pictureSize = 100;
+
+var pictureSizeInputElement = document.querySelector('.resize__control--value');
+var pictureSizeMinusBtn = document.querySelector('.resize__control--minus');
+var pictureSizePlusBtn = document.querySelector('.resize__control--plus');
+
+var applyPictureSize = function (size) {
+  pictureSizeInputElement.value = size + '%';
+  previewPictureElement.style.transform = 'scale(' + (size / 100) + ')';
+};
+
+var onPictureSizeMinusBtnClick = function () {
+  pictureSize -= 25;
+
+  if (pictureSize < 25) {
+    pictureSize = 25;
+  }
+
+  applyPictureSize(pictureSize);
+};
+
+var onPictureSizePlusBtnClick = function () {
+  pictureSize += 25;
+
+  if (pictureSize > 100) {
+    pictureSize = 100;
+  }
+
+  applyPictureSize(pictureSize);
+};
+
+pictureSizeMinusBtn.addEventListener('click', onPictureSizeMinusBtnClick);
+pictureSizePlusBtn.addEventListener('click', onPictureSizePlusBtnClick);
