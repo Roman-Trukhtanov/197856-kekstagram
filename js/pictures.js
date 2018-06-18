@@ -152,6 +152,45 @@ var levelElement = effectProgressElement.querySelector('.scale__level');
 var previewElement = pictureEditorElement.querySelector('.img-upload__preview');
 var previewPictureElement = previewElement.querySelector('img');
 
+/*
+*
+*
+* Изменение размера картинке */
+var pictureSize = 100;
+
+var pictureSizeInputElement = document.querySelector('.resize__control--value');
+var pictureSizeMinusBtn = document.querySelector('.resize__control--minus');
+var pictureSizePlusBtn = document.querySelector('.resize__control--plus');
+
+var applyPictureSize = function (size) {
+  pictureSizeInputElement.value = size + '%';
+  previewPictureElement.style.transform = 'scale(' + (size / 100) + ')';
+};
+
+var onPictureSizeMinusBtnClick = function () {
+  pictureSize -= 25;
+
+  if (pictureSize < 25) {
+    pictureSize = 25;
+  }
+
+  applyPictureSize(pictureSize);
+};
+
+var onPictureSizePlusBtnClick = function () {
+  pictureSize += 25;
+
+  if (pictureSize > 100) {
+    pictureSize = 100;
+  }
+
+  applyPictureSize(pictureSize);
+};
+
+pictureSizeMinusBtn.addEventListener('click', onPictureSizeMinusBtnClick);
+pictureSizePlusBtn.addEventListener('click', onPictureSizePlusBtnClick);
+/* ------ */
+
 /* Объект-мапа, со всеми поддреживаемыми эффектами */
 var effects = {
   'chrome': function (value) {
@@ -204,6 +243,9 @@ var openPictureEditor = function () {
   effectValueElement.value = 100;
   changeProgress(effectValueElement.value);
 
+  pictureSize = 100;
+  applyPictureSize(pictureSize);
+
   applyEffect(checkedEffect);
 
   pictureEditorElement.classList.remove('hidden');
@@ -240,42 +282,3 @@ uploadFileElement.addEventListener('change', function () {
 closePictureEditorBtn.addEventListener('click', function () {
   closePictureEditor();
 });
-
-/*
-*
-*
-* Изменение размера картинке */
-
-var pictureSize = 100;
-
-var pictureSizeInputElement = document.querySelector('.resize__control--value');
-var pictureSizeMinusBtn = document.querySelector('.resize__control--minus');
-var pictureSizePlusBtn = document.querySelector('.resize__control--plus');
-
-var applyPictureSize = function (size) {
-  pictureSizeInputElement.value = size + '%';
-  previewPictureElement.style.transform = 'scale(' + (size / 100) + ')';
-};
-
-var onPictureSizeMinusBtnClick = function () {
-  pictureSize -= 25;
-
-  if (pictureSize < 25) {
-    pictureSize = 25;
-  }
-
-  applyPictureSize(pictureSize);
-};
-
-var onPictureSizePlusBtnClick = function () {
-  pictureSize += 25;
-
-  if (pictureSize > 100) {
-    pictureSize = 100;
-  }
-
-  applyPictureSize(pictureSize);
-};
-
-pictureSizeMinusBtn.addEventListener('click', onPictureSizeMinusBtnClick);
-pictureSizePlusBtn.addEventListener('click', onPictureSizePlusBtnClick);
