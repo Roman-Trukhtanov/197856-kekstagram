@@ -630,7 +630,8 @@ main {
   width: 600px;
   height: 600px;
 
-  background-color: #ffffff;
+  background-color: #999999;
+  border: 7px solid white;
 }
 
 .img-upload__preview img {
