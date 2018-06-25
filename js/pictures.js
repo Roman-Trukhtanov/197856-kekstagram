@@ -277,13 +277,13 @@ var applyEffect = function (effectName, pinPosition) {
 
   if (effectName === 'none') {
     effectProgressElement.classList.add('hidden');
+    previewPictureElement.style.filter = effects[effectName]();
   } else {
     if (effectProgressElement.classList.contains('hidden')) {
       effectProgressElement.classList.remove('hidden');
     }
+    previewPictureElement.style.filter = effects[effectName](effectValueElement.value);
   }
-
-  previewPictureElement.style.filter = effects[effectName](effectValueElement.value);
 };
 
 var onPictureEditorEscPress = function (evt) {
