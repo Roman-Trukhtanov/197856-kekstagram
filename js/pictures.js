@@ -22,7 +22,7 @@ var NUMBER_OF_PICTURES = 25;
 var MIN_LIKES = 15;
 var MAX_LIKES = 200;
 
-var ESC_KEY_CODE = 27;
+var ESC_KEYCODE = 27;
 
 var pictureTemplate = document.querySelector('#picture').content;
 
@@ -109,7 +109,7 @@ var commentsContainer = pictureOverlayContainer.querySelector('.social__comments
 var closePictureOverlayBtn = pictureOverlayContainer.querySelector('#picture-cancel');
 
 var onPictureOverlayEscPress = function (evt) {
-  if (evt.keyCode === ESC_KEY_CODE) {
+  if (evt.keyCode === ESC_KEYCODE) {
     closePictureOverlay();
   }
 };
@@ -179,53 +179,44 @@ var MIN_PICTURE_SIZE = 25;
 var MAX_PICTURE_SIZE = 100;
 var RESIZING_STEP = 25;
 
-var imageDeformationMap = {
-  'increase': function (size, step, maxSize) {
-    var newSize = size;
-
-    newSize += step;
-
-    if (newSize > maxSize) {
-      newSize = maxSize;
-    }
-
-    return newSize;
-  },
-
-  'decrease': function (size, step, minSize) {
-    var newSize = size;
-
-    newSize -= step;
-
-    if (newSize < minSize) {
-      newSize = minSize;
-    }
-
-    return newSize;
-  }
-};
-
 var applyPictureSize = function (size) {
   pictureSizeInputElement.value = size + '%';
   previewPictureElement.style.transform = 'scale(' + (size / 100) + ')';
 };
 
-var resizePicture = function (param, maxValue) {
-  pictureSize = imageDeformationMap[param](pictureSize, RESIZING_STEP, maxValue);
+var resizePicture = function (param) {
+  if (param === 'increase') {
+    pictureSize += RESIZING_STEP;
+  }
+
+  if (param === 'decrease') {
+    pictureSize -= RESIZING_STEP;
+  }
+
+  if (pictureSize < MIN_PICTURE_SIZE) {
+    pictureSize = MIN_PICTURE_SIZE;
+  }
+
+  if (pictureSize > MAX_PICTURE_SIZE) {
+    pictureSize = MAX_PICTURE_SIZE;
+  }
+
   applyPictureSize(pictureSize);
 };
 
 var onPictureSizeMinusBtnClick = function () {
-  resizePicture('decrease', MIN_PICTURE_SIZE);
+  resizePicture('decrease');
 };
 
 var onPictureSizePlusBtnClick = function () {
-  resizePicture('increase', MAX_PICTURE_SIZE);
+  resizePicture('increase');
 };
 
 /* Объект-мапа, со всеми поддерживаемыми эффектами */
 var effects = {
   'none': function () {
+    effectProgressElement.classList.toggle('hidden', true);
+
     return 'none';
   },
 
@@ -275,19 +266,13 @@ var applyEffect = function (effectName, pinPosition) {
   effectValueElement.value = pinPosition;
   changeProgress(effectValueElement.value);
 
-  if (effectName === 'none') {
-    effectProgressElement.classList.add('hidden');
-    previewPictureElement.style.filter = effects[effectName]();
-  } else {
-    if (effectProgressElement.classList.contains('hidden')) {
-      effectProgressElement.classList.remove('hidden');
-    }
-    previewPictureElement.style.filter = effects[effectName](effectValueElement.value);
-  }
+  effectProgressElement.classList.toggle('hidden', false);
+
+  previewPictureElement.style.filter = effects[effectName](effectValueElement.value);
 };
 
 var onPictureEditorEscPress = function (evt) {
-  if (evt.keyCode === ESC_KEY_CODE) {
+  if (evt.keyCode === ESC_KEYCODE) {
     closePictureEditor();
   }
 };
