@@ -22,7 +22,7 @@ var NUMBER_OF_PICTURES = 25;
 var MIN_LIKES = 15;
 var MAX_LIKES = 200;
 
-var ESC_KEYCODE = 27;
+var ESC_KEY_CODE = 27;
 
 var pictureTemplate = document.querySelector('#picture').content;
 
@@ -104,17 +104,18 @@ var createComment = function (comment) {
   return commentElement;
 };
 
-/* ------------ */
-
 var pictureOverlayContainer = document.querySelector('.big-picture');
 var commentsContainer = pictureOverlayContainer.querySelector('.social__comments');
 var closePictureOverlayBtn = pictureOverlayContainer.querySelector('#picture-cancel');
 
-var fillPictureOverlay = function (picture) {
-
-  while (commentsContainer.firstChild) {
-    commentsContainer.removeChild(commentsContainer.firstChild);
+var onPictureOverlayEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEY_CODE) {
+    closePictureOverlay();
   }
+};
+
+var openPictureOverlay = function (picture) {
+  commentsContainer.innerHTML = '';
 
   pictureOverlayContainer.querySelector('.big-picture__img').querySelector('img').src = picture.url;
   pictureOverlayContainer.querySelector('.likes-count').textContent = picture.likes;
@@ -126,36 +127,22 @@ var fillPictureOverlay = function (picture) {
         createComment(picture.comments[i])
     );
   }
-};
-
-var onPictureOverlayEscPress = function (evt) {
-  if (evt.keyCode === ESC_KEYCODE) {
-    closePictureOverlay();
-  }
-};
-
-var openPictureOverlay = function (picture) {
-  fillPictureOverlay(picture);
-
-  /* Скрывает блок с количеством комментариев внутри блока с большой картинкой */
-  var commentsCountElement = pictureOverlayContainer.querySelector('.social__comment-count');
-  commentsCountElement.classList.add('visually-hidden');
-
-  /* Скрывает кнопку 'загрузить еще' внутри блока с большой картинкой */
-  var loadMoreBtn = pictureOverlayContainer.querySelector('.social__loadmore');
-  loadMoreBtn.classList.add('visually-hidden');
 
   pictureOverlayContainer.classList.remove('hidden');
 
   document.addEventListener('keydown', onPictureOverlayEscPress);
 
-  closePictureOverlayBtn.addEventListener('click', function () {
-    closePictureOverlay();
-  });
+  closePictureOverlayBtn.addEventListener('click', onClosePictureOverlayBtnClick);
+};
+
+var onClosePictureOverlayBtnClick = function () {
+  closePictureOverlay();
 };
 
 var closePictureOverlay = function () {
   pictureOverlayContainer.classList.add('hidden');
+
+  closePictureOverlayBtn.removeEventListener('click', onClosePictureOverlayBtnClick);
   document.removeEventListener('keydown', onPictureOverlayEscPress);
 };
 
@@ -163,68 +150,85 @@ var allPictures = generatePictures(NUMBER_OF_PICTURES, MIN_LIKES, MAX_LIKES);
 
 picturesContainer.appendChild(fillFragment(allPictures));
 
-/*
-*
-*
-*
-* Добавление новой картинки в галерею (c применением эффектов, добавлением комментариев и хеш-тегов */
+/* Добавление новой картинки в галерею (c применением эффектов, добавлением комментариев и хеш-тегов */
 
 var uploadFileElement = document.querySelector('#upload-file');
 var pictureEditorElement = document.querySelector('.img-upload__overlay');
 var closePictureEditorBtn = pictureEditorElement.querySelector('#upload-cancel');
 
 var effectsElement = pictureEditorElement.querySelector('.img-upload__effects');
-var checkedEffect = effectsElement.querySelector('.effects__radio:checked').value;
+var checkedEffect = effectsElement.querySelector('.effects__radio:checked');
 
 var effectProgressElement = pictureEditorElement.querySelector('.img-upload__scale');
 var effectValueElement = effectProgressElement.querySelector('.scale__value');
+var defaultPinPosition = effectValueElement.value;
+
 var pinElement = effectProgressElement.querySelector('.scale__pin');
 var levelElement = effectProgressElement.querySelector('.scale__level');
 
 var previewElement = pictureEditorElement.querySelector('.img-upload__preview');
 var previewPictureElement = previewElement.querySelector('img');
 
-/*
-*
-*
-* Изменение размера картинке */
-var pictureSize = 100;
-
+/* Изменение размера изображения внутри оверлея */
 var pictureSizeInputElement = document.querySelector('.resize__control--value');
 var pictureSizeMinusBtn = document.querySelector('.resize__control--minus');
 var pictureSizePlusBtn = document.querySelector('.resize__control--plus');
+
+var pictureSize = parseInt(pictureSizeInputElement.value, 10);
+var MIN_PICTURE_SIZE = 25;
+var MAX_PICTURE_SIZE = 100;
+var RESIZING_STEP = 25;
+
+var imageDeformationMap = {
+  'increase': function (size, step, maxSize) {
+    var newSize = size;
+
+    newSize += step;
+
+    if (newSize > maxSize) {
+      newSize = maxSize;
+    }
+
+    return newSize;
+  },
+
+  'decrease': function (size, step, minSize) {
+    var newSize = size;
+
+    newSize -= step;
+
+    if (newSize < minSize) {
+      newSize = minSize;
+    }
+
+    return newSize;
+  }
+};
 
 var applyPictureSize = function (size) {
   pictureSizeInputElement.value = size + '%';
   previewPictureElement.style.transform = 'scale(' + (size / 100) + ')';
 };
 
-var onPictureSizeMinusBtnClick = function () {
-  pictureSize -= 25;
-
-  if (pictureSize < 25) {
-    pictureSize = 25;
-  }
-
+var resizePicture = function (param, maxValue) {
+  pictureSize = imageDeformationMap[param](pictureSize, RESIZING_STEP, maxValue);
   applyPictureSize(pictureSize);
+};
+
+var onPictureSizeMinusBtnClick = function () {
+  resizePicture('decrease', MIN_PICTURE_SIZE);
 };
 
 var onPictureSizePlusBtnClick = function () {
-  pictureSize += 25;
-
-  if (pictureSize > 100) {
-    pictureSize = 100;
-  }
-
-  applyPictureSize(pictureSize);
+  resizePicture('increase', MAX_PICTURE_SIZE);
 };
 
-pictureSizeMinusBtn.addEventListener('click', onPictureSizeMinusBtnClick);
-pictureSizePlusBtn.addEventListener('click', onPictureSizePlusBtnClick);
-/* ------ */
-
-/* Объект-мапа, со всеми поддреживаемыми эффектами */
+/* Объект-мапа, со всеми поддерживаемыми эффектами */
 var effects = {
+  'none': function () {
+    return 'none';
+  },
+
   'chrome': function (value) {
     var maxValue = 1;
     var coefficient = maxValue * value / 100;
@@ -267,60 +271,70 @@ var changeProgress = function (value) {
   levelElement.style.width = value + '%';
 };
 
-var applyEffect = function (effectName) {
+var applyEffect = function (effectName, pinPosition) {
+  effectValueElement.value = pinPosition;
+  changeProgress(effectValueElement.value);
+
+  if (effectName === 'none') {
+    effectProgressElement.classList.add('hidden');
+  } else {
+    if (effectProgressElement.classList.contains('hidden')) {
+      effectProgressElement.classList.remove('hidden');
+    }
+  }
+
   previewPictureElement.style.filter = effects[effectName](effectValueElement.value);
 };
 
 var onPictureEditorEscPress = function (evt) {
-  if (evt.keyCode === ESC_KEYCODE) {
+  if (evt.keyCode === ESC_KEY_CODE) {
     closePictureEditor();
   }
 };
 
 var openPictureEditor = function () {
-  effectValueElement.value = 100;
-  changeProgress(effectValueElement.value);
-
-  pictureSize = 100;
   applyPictureSize(pictureSize);
 
-  applyEffect(checkedEffect);
+  checkedEffect.checked = true;
+  applyEffect(checkedEffect.value, defaultPinPosition);
 
   pictureEditorElement.classList.remove('hidden');
 
+  pictureSizeMinusBtn.addEventListener('click', onPictureSizeMinusBtnClick);
+  pictureSizePlusBtn.addEventListener('click', onPictureSizePlusBtnClick);
+
   document.addEventListener('keydown', onPictureEditorEscPress);
+
+  closePictureEditorBtn.addEventListener('click', onClosePictureEditorBtnClick);
+};
+
+var onClosePictureEditorBtnClick = function () {
+  closePictureEditor();
 };
 
 var closePictureEditor = function () {
   pictureEditorElement.classList.add('hidden');
   uploadFileElement.value = '';
 
+  pictureSize = MAX_PICTURE_SIZE;
+
   document.removeEventListener('keydown', onPictureEditorEscPress);
+  closePictureEditorBtn.removeEventListener('click', onClosePictureEditorBtnClick);
+
+  pictureSizeMinusBtn.removeEventListener('click', onPictureSizeMinusBtnClick);
+  pictureSizePlusBtn.removeEventListener('click', onPictureSizePlusBtnClick);
 };
 
 var onEffectsElementChange = function (evt) {
-  effectValueElement.value = 100;
-  changeProgress(effectValueElement.value);
-
-  var currentEffectName = evt.target.value;
-
-  if (currentEffectName === 'none') {
-    previewPictureElement.style.filter = 'none';
-
-    effectProgressElement.classList.add('hidden');
-  } else {
-    effectProgressElement.classList.remove('hidden');
-
-    applyEffect(currentEffectName);
-  }
+  applyEffect(evt.target.value, defaultPinPosition);
 };
 
-effectsElement.addEventListener('change', onEffectsElementChange);
+var uploadFile = function () {
+  effectsElement.addEventListener('change', onEffectsElementChange);
 
-uploadFileElement.addEventListener('change', function () {
-  openPictureEditor();
-});
+  uploadFileElement.addEventListener('change', function () {
+    openPictureEditor();
+  });
+};
 
-closePictureEditorBtn.addEventListener('click', function () {
-  closePictureEditor();
-});
+uploadFile();
