@@ -157,11 +157,13 @@ var closePictureEditorBtn = pictureEditorElement.querySelector('#upload-cancel')
 
 var effectsElement = pictureEditorElement.querySelector('.img-upload__effects');
 var checkedEffect = effectsElement.querySelector('.effects__radio:checked');
+var selectedEffect = checkedEffect.value;
 
 var effectProgressElement = pictureEditorElement.querySelector('.img-upload__scale');
 var effectValueElement = effectProgressElement.querySelector('.scale__value');
-var defaultPinPosition = effectValueElement.value;
+var defaultEffectValue = effectValueElement.value;
 
+var lineElement = effectProgressElement.querySelector('.scale__line');
 var pinElement = effectProgressElement.querySelector('.scale__pin');
 var levelElement = effectProgressElement.querySelector('.scale__level');
 
@@ -174,7 +176,6 @@ var pictureSizeMinusBtn = document.querySelector('.resize__control--minus');
 var pictureSizePlusBtn = document.querySelector('.resize__control--plus');
 
 var pictureSize = parseInt(pictureSizeInputElement.value, 10);
-var isIncreaseSize = true;
 
 var MIN_PICTURE_SIZE = 25;
 var MAX_PICTURE_SIZE = 100;
@@ -185,8 +186,8 @@ var applyPictureSize = function (size) {
   previewPictureElement.style.transform = 'scale(' + (size / 100) + ')';
 };
 
-var resizePicture = function (isResize) {
-  if (isResize) {
+var resizePicture = function (isIncrease) {
+  if (isIncrease) {
     pictureSize += RESIZING_STEP;
   } else {
     pictureSize -= RESIZING_STEP;
@@ -204,13 +205,11 @@ var resizePicture = function (isResize) {
 };
 
 var onPictureSizeMinusBtnClick = function () {
-  isIncreaseSize = false;
-  resizePicture(isIncreaseSize);
+  resizePicture(false);
 };
 
 var onPictureSizePlusBtnClick = function () {
-  isIncreaseSize = true;
-  resizePicture(isIncreaseSize);
+  resizePicture(true);
 };
 
 /* Объект-мапа, со всеми поддерживаемыми эффектами */
@@ -261,6 +260,83 @@ var changeProgress = function (value) {
   levelElement.style.width = value + '%';
 };
 
+var onPinElementMouseDown = function (evt) {
+  evt.preventDefault();
+
+  lineElement.removeEventListener('click', onLineElementClick);
+
+  var startCoords = {
+    x: evt.clientX
+  };
+
+  var onPinElementMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+
+    if (pinElement.offsetLeft === 0) {
+      var pinElementLeftPosition = pinElement.getBoundingClientRect().left + pinElement.offsetWidth / 2;
+      startCoords.x = pinElementLeftPosition;
+
+      if (moveEvt.clientX > pinElementLeftPosition) {
+        updateCoords(moveEvt);
+      }
+    } else if (pinElement.offsetLeft === lineElement.offsetWidth) {
+      var pinElementRightPosition = pinElement.getBoundingClientRect().right - pinElement.offsetWidth / 2;
+      startCoords.x = pinElementRightPosition;
+
+      if (moveEvt.clientX < pinElementRightPosition) {
+        updateCoords(moveEvt);
+      }
+    } else {
+      updateCoords(moveEvt);
+    }
+
+  };
+
+  var updateCoords = function (moveEvt) {
+    var shift = {
+      x: startCoords.x - moveEvt.clientX
+    };
+
+    startCoords.x = moveEvt.clientX;
+
+    setEffectLevel(shift.x);
+  };
+
+  var onPinElementMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    lineElement.addEventListener('click', onLineElementClick);
+
+    document.removeEventListener('mousemove', onPinElementMouseMove);
+    document.removeEventListener('mouseup', onPinElementMouseUp);
+  };
+
+  document.addEventListener('mousemove', onPinElementMouseMove);
+  document.addEventListener('mouseup', onPinElementMouseUp);
+};
+
+var setEffectLevel = function (shiftX) {
+  var effectLevel = ((pinElement.offsetLeft - shiftX) / lineElement.offsetWidth) * 100;
+
+  if (effectLevel > 100) {
+    effectLevel = 100;
+  }
+
+  if (effectLevel < 0) {
+    effectLevel = 0;
+  }
+
+  effectValueElement.value = effectLevel;
+
+  applyEffect(selectedEffect, effectValueElement.value);
+};
+
+var onLineElementClick = function (evt) {
+  var lineElementClickPosition = (evt.clientX - lineElement.getBoundingClientRect().left) / lineElement.offsetWidth * 100;
+
+  applyEffect(selectedEffect, lineElementClickPosition);
+};
+
 var applyEffect = function (effectName, pinPosition) {
   effectValueElement.value = pinPosition;
   changeProgress(effectValueElement.value);
@@ -284,34 +360,32 @@ var textCommentElement = pictureEditorElement.querySelector('.text__description'
 /* Валидация хеш-тегов */
 var hashTagInputElement = pictureEditorElement.querySelector('.text__hashtags');
 
-var spliceArray = function (field, symbol) {
-  return field.value
-    .split(symbol)
-    .filter(function (value) {
-      return value !== '';
+var getFilteredArray = function (str, symbol) {
+  return str.split(symbol)
+    .filter(function (it) {
+      return it !== '';
     });
 };
 
-var validateHashTags = function (hashTags) {
-  var isValid = true;
+var getHashTagValidity = function (hashTags) {
+  var message = '';
 
   if (hashTags.length > 5) {
-    hashTagInputElement.setCustomValidity('Превышено максимальное количество тегов (максимум 5 - хеш-тегов)');
-    isValid = false;
+    message = 'Превышено максимальное количество тегов (максимум 5 - хеш-тегов)';
   }
 
   for (var i = 0; i < hashTags.length; i++) {
     if (hashTags[i] === '#') {
-      hashTagInputElement.setCustomValidity('Хеш-тег не может состоять тольк из "#": ' + hashTags[i]);
-      isValid = false;
+      message = 'Хеш-тег не может состоять тольк из "#": ' + hashTags[i];
+      break;
     } else if (hashTags[i][0] !== '#') {
-      hashTagInputElement.setCustomValidity('Хеш-тег должен начинаться с "#": ' + hashTags[i]);
-      isValid = false;
+      message = 'Хеш-тег должен начинаться с "#": ' + hashTags[i];
+      break;
     }
 
     if (hashTags[i].length > 20) {
-      hashTagInputElement.setCustomValidity('Превышена максимальная длина хеш-тега (20 - символов): ' + hashTags[i]);
-      isValid = false;
+      message = 'Превышена максимальная длина хеш-тега (20 - символов): ' + hashTags[i];
+      break;
     }
 
     var currentHashTag = hashTags[i].toLowerCase();
@@ -320,41 +394,52 @@ var validateHashTags = function (hashTags) {
       var nextHashTag = hashTags[j].toLowerCase();
 
       if (currentHashTag === nextHashTag) {
-        hashTagInputElement.setCustomValidity('Одинаковые хеш-теги: ' + hashTags[i] + ' и ' + hashTags[j]);
-        isValid = false;
+        message = 'Одинаковые хеш-теги: ' + hashTags[i] + ' и ' + hashTags[j];
+        break;
       }
     }
   }
 
-  if (isValid) {
-    hashTagInputElement.setCustomValidity('');
-  }
+  return message;
 };
 
 var onHashTagInputElementInput = function () {
-  validateHashTags(
-      spliceArray(hashTagInputElement, ' ')
-  );
+  var filteredHashTags = getFilteredArray(hashTagInputElement.value, ' ');
+
+  hashTagInputElement.setCustomValidity(getHashTagValidity(filteredHashTags));
 };
 
+/* Игнорирование ошибок на скрытом поле */
+var onEffectValueElementInvalid = function () {
+  if (!effectValueElement.validity.valid) {
+    effectValueElement.setCustomValidity('');
+  }
+};
 
 /* Открытие блока с редактированием изображения */
 var openPictureEditor = function () {
   applyPictureSize(pictureSize);
 
   checkedEffect.checked = true;
-  applyEffect(checkedEffect.value, defaultPinPosition);
+  applyEffect(checkedEffect.value, defaultEffectValue);
 
   pictureEditorElement.classList.remove('hidden');
 
   pictureSizeMinusBtn.addEventListener('click', onPictureSizeMinusBtnClick);
   pictureSizePlusBtn.addEventListener('click', onPictureSizePlusBtnClick);
 
+  /* Обработчики на элементы слайдера */
+  lineElement.addEventListener('click', onLineElementClick);
+  pinElement.addEventListener('mousedown', onPinElementMouseDown);
+
   document.addEventListener('keydown', onPictureEditorEscPress);
 
   closePictureEditorBtn.addEventListener('click', onClosePictureEditorBtnClick);
 
   hashTagInputElement.addEventListener('input', onHashTagInputElementInput);
+
+  /* Т.к поле скрыто, если через js изменять значение, то при отрпавке формы поле ругается */
+  effectValueElement.addEventListener('invalid', onEffectValueElementInvalid);
 };
 
 var onClosePictureEditorBtnClick = function () {
@@ -373,11 +458,16 @@ var closePictureEditor = function () {
   pictureSizeMinusBtn.removeEventListener('click', onPictureSizeMinusBtnClick);
   pictureSizePlusBtn.removeEventListener('click', onPictureSizePlusBtnClick);
 
+  lineElement.removeEventListener('click', onLineElementClick);
+  pinElement.addEventListener('mousedown', onPinElementMouseDown);
+
   hashTagInputElement.removeEventListener('input', onHashTagInputElementInput);
+  effectValueElement.removeEventListener('invalid', onEffectValueElementInvalid);
 };
 
 var onEffectsElementChange = function (evt) {
-  applyEffect(evt.target.value, defaultPinPosition);
+  selectedEffect = evt.target.value;
+  applyEffect(selectedEffect, defaultEffectValue);
 };
 
 var uploadFile = function () {
