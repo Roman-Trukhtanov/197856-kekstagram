@@ -104,6 +104,20 @@ var createComment = function (comment) {
   return commentElement;
 };
 
+var getNumberFromRange = function (value, min, max) {
+  var number = value;
+
+  if (number < min) {
+    number = min;
+  }
+
+  if (number > max) {
+    number = max;
+  }
+
+  return number;
+};
+
 var pictureOverlayContainer = document.querySelector('.big-picture');
 var commentsContainer = pictureOverlayContainer.querySelector('.social__comments');
 var closePictureOverlayBtn = pictureOverlayContainer.querySelector('#picture-cancel');
@@ -193,13 +207,7 @@ var resizePicture = function (isIncrease) {
     pictureSize -= RESIZING_STEP;
   }
 
-  if (pictureSize < MIN_PICTURE_SIZE) {
-    pictureSize = MIN_PICTURE_SIZE;
-  }
-
-  if (pictureSize > MAX_PICTURE_SIZE) {
-    pictureSize = MAX_PICTURE_SIZE;
-  }
+  pictureSize = getNumberFromRange(pictureSize, MIN_PICTURE_SIZE, MAX_PICTURE_SIZE);
 
   applyPictureSize(pictureSize);
 };
@@ -260,81 +268,70 @@ var changeProgress = function (value) {
   levelElement.style.width = value + '%';
 };
 
+var getUpdatedCoords = function (clientX) {
+  if (pinElement.offsetLeft === 0) {
+    if (clientX > window.lineElementLeftPos) {
+      return clientX;
+    }
+  }
+
+  if (pinElement.offsetLeft === window.lineElementWidth) {
+    if (clientX < window.lineElementRightPos) {
+      return clientX;
+    }
+  }
+
+  return clientX;
+};
+
 var onPinElementMouseDown = function (evt) {
   evt.preventDefault();
 
   lineElement.removeEventListener('click', onLineElementClick);
 
-  var startCoords = {
-    x: evt.clientX
-  };
-
-  var onPinElementMouseMove = function (moveEvt) {
-    moveEvt.preventDefault();
-
-    if (pinElement.offsetLeft === 0) {
-      var pinElementLeftPosition = pinElement.getBoundingClientRect().left + pinElement.offsetWidth / 2;
-      startCoords.x = pinElementLeftPosition;
-
-      if (moveEvt.clientX > pinElementLeftPosition) {
-        updateCoords(moveEvt);
-      }
-    } else if (pinElement.offsetLeft === lineElement.offsetWidth) {
-      var pinElementRightPosition = pinElement.getBoundingClientRect().right - pinElement.offsetWidth / 2;
-      startCoords.x = pinElementRightPosition;
-
-      if (moveEvt.clientX < pinElementRightPosition) {
-        updateCoords(moveEvt);
-      }
-    } else {
-      updateCoords(moveEvt);
-    }
-
-  };
-
-  var updateCoords = function (moveEvt) {
-    var shift = {
-      x: startCoords.x - moveEvt.clientX
-    };
-
-    startCoords.x = moveEvt.clientX;
-
-    setEffectLevel(shift.x);
-  };
-
-  var onPinElementMouseUp = function (upEvt) {
-    upEvt.preventDefault();
-
-    lineElement.addEventListener('click', onLineElementClick);
-
-    document.removeEventListener('mousemove', onPinElementMouseMove);
-    document.removeEventListener('mouseup', onPinElementMouseUp);
-  };
-
   document.addEventListener('mousemove', onPinElementMouseMove);
   document.addEventListener('mouseup', onPinElementMouseUp);
 };
 
-var setEffectLevel = function (shiftX) {
-  var effectLevel = ((pinElement.offsetLeft - shiftX) / lineElement.offsetWidth) * 100;
+var onPinElementMouseMove = function (moveEvt) {
+  moveEvt.preventDefault();
 
-  if (effectLevel > 100) {
-    effectLevel = 100;
-  }
+  setEffectLevel(getUpdatedCoords(moveEvt.clientX));
+};
 
-  if (effectLevel < 0) {
-    effectLevel = 0;
-  }
+var onPinElementMouseUp = function (upEvt) {
+  upEvt.preventDefault();
 
-  effectValueElement.value = effectLevel;
+  lineElement.addEventListener('click', onLineElementClick);
 
-  applyEffect(selectedEffect, effectValueElement.value);
+  document.removeEventListener('mousemove', onPinElementMouseMove);
+  document.removeEventListener('mouseup', onPinElementMouseUp);
+};
+
+var setEffectLevel = function (clientX) {
+  var effectLevel = (clientX - window.lineElementLeftPos) / window.lineElementWidth * 100;
+
+  effectLevel = getNumberFromRange(effectLevel, 0, 100);
+
+  applyEffect(selectedEffect, effectLevel.toFixed(2));
 };
 
 var onLineElementClick = function (evt) {
-  var lineElementClickPosition = (evt.clientX - lineElement.getBoundingClientRect().left) / lineElement.offsetWidth * 100;
+  setEffectLevel(evt.clientX);
+};
 
-  applyEffect(selectedEffect, lineElementClickPosition);
+var enableEffectOverlay = function () {
+  lineElement.addEventListener('click', onLineElementClick);
+  pinElement.addEventListener('mousedown', onPinElementMouseDown);
+
+  window.lineElementLeftPos = lineElement.getBoundingClientRect().left;
+  window.lineElementRightPos = lineElement.getBoundingClientRect().right;
+  window.lineElementWidth = lineElement.offsetWidth;
+};
+
+var disableEffectOverlay = function () {
+  lineElement.removeEventListener('click', onLineElementClick);
+  pinElement.addEventListener('mousedown', onPinElementMouseDown);
 };
 
 var applyEffect = function (effectName, pinPosition) {
@@ -368,24 +365,19 @@ var getFilteredArray = function (str, symbol) {
 };
 
 var getHashTagValidity = function (hashTags) {
-  var message = '';
-
   if (hashTags.length > 5) {
-    message = 'Превышено максимальное количество тегов (максимум 5 - хеш-тегов)';
+    return 'Превышено максимальное количество тегов (максимум 5 - хеш-тегов)';
   }
 
   for (var i = 0; i < hashTags.length; i++) {
     if (hashTags[i] === '#') {
-      message = 'Хеш-тег не может состоять тольк из "#": ' + hashTags[i];
-      break;
+      return 'Хеш-тег не может состоять тольк из "#": ' + hashTags[i];
     } else if (hashTags[i][0] !== '#') {
-      message = 'Хеш-тег должен начинаться с "#": ' + hashTags[i];
-      break;
+      return 'Хеш-тег должен начинаться с "#": ' + hashTags[i];
     }
 
     if (hashTags[i].length > 20) {
-      message = 'Превышена максимальная длина хеш-тега (20 - символов): ' + hashTags[i];
-      break;
+      return 'Превышена максимальная длина хеш-тега (20 - символов): ' + hashTags[i];
     }
 
     var currentHashTag = hashTags[i].toLowerCase();
@@ -394,26 +386,18 @@ var getHashTagValidity = function (hashTags) {
       var nextHashTag = hashTags[j].toLowerCase();
 
       if (currentHashTag === nextHashTag) {
-        message = 'Одинаковые хеш-теги: ' + hashTags[i] + ' и ' + hashTags[j];
-        break;
+        return 'Одинаковые хеш-теги: ' + hashTags[i] + ' и ' + hashTags[j];
       }
     }
   }
 
-  return message;
+  return '';
 };
 
 var onHashTagInputElementInput = function () {
   var filteredHashTags = getFilteredArray(hashTagInputElement.value, ' ');
 
   hashTagInputElement.setCustomValidity(getHashTagValidity(filteredHashTags));
-};
-
-/* Игнорирование ошибок на скрытом поле */
-var onEffectValueElementInvalid = function () {
-  if (!effectValueElement.validity.valid) {
-    effectValueElement.setCustomValidity('');
-  }
 };
 
 /* Открытие блока с редактированием изображения */
@@ -428,18 +412,11 @@ var openPictureEditor = function () {
   pictureSizeMinusBtn.addEventListener('click', onPictureSizeMinusBtnClick);
   pictureSizePlusBtn.addEventListener('click', onPictureSizePlusBtnClick);
 
-  /* Обработчики на элементы слайдера */
-  lineElement.addEventListener('click', onLineElementClick);
-  pinElement.addEventListener('mousedown', onPinElementMouseDown);
+  enableEffectOverlay();
 
   document.addEventListener('keydown', onPictureEditorEscPress);
-
   closePictureEditorBtn.addEventListener('click', onClosePictureEditorBtnClick);
-
   hashTagInputElement.addEventListener('input', onHashTagInputElementInput);
-
-  /* Т.к поле скрыто, если через js изменять значение, то при отрпавке формы поле ругается */
-  effectValueElement.addEventListener('invalid', onEffectValueElementInvalid);
 };
 
 var onClosePictureEditorBtnClick = function () {
@@ -458,11 +435,8 @@ var closePictureEditor = function () {
   pictureSizeMinusBtn.removeEventListener('click', onPictureSizeMinusBtnClick);
   pictureSizePlusBtn.removeEventListener('click', onPictureSizePlusBtnClick);
 
-  lineElement.removeEventListener('click', onLineElementClick);
-  pinElement.addEventListener('mousedown', onPinElementMouseDown);
-
   hashTagInputElement.removeEventListener('input', onHashTagInputElementInput);
-  effectValueElement.removeEventListener('invalid', onEffectValueElementInvalid);
+  disableEffectOverlay();
 };
 
 var onEffectsElementChange = function (evt) {
