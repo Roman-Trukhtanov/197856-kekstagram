@@ -104,6 +104,20 @@ var createComment = function (comment) {
   return commentElement;
 };
 
+var getNumberFromRange = function (value, min, max) {
+  var number = value;
+
+  if (number < min) {
+    number = min;
+  }
+
+  if (number > max) {
+    number = max;
+  }
+
+  return number;
+};
+
 var pictureOverlayContainer = document.querySelector('.big-picture');
 var commentsContainer = pictureOverlayContainer.querySelector('.social__comments');
 var closePictureOverlayBtn = pictureOverlayContainer.querySelector('#picture-cancel');
@@ -151,30 +165,32 @@ var allPictures = generatePictures(NUMBER_OF_PICTURES, MIN_LIKES, MAX_LIKES);
 picturesContainer.appendChild(fillFragment(allPictures));
 
 /* Добавление новой картинки в галерею (c применением эффектов, добавлением комментариев и хеш-тегов */
-
 var uploadFileElement = document.querySelector('#upload-file');
 var pictureEditorElement = document.querySelector('.img-upload__overlay');
 var closePictureEditorBtn = pictureEditorElement.querySelector('#upload-cancel');
 
 var effectsElement = pictureEditorElement.querySelector('.img-upload__effects');
 var checkedEffect = effectsElement.querySelector('.effects__radio:checked');
+var selectedEffect = checkedEffect.value;
 
 var effectProgressElement = pictureEditorElement.querySelector('.img-upload__scale');
 var effectValueElement = effectProgressElement.querySelector('.scale__value');
-var defaultPinPosition = effectValueElement.value;
+var defaultEffectValue = effectValueElement.value;
 
+var lineElement = effectProgressElement.querySelector('.scale__line');
 var pinElement = effectProgressElement.querySelector('.scale__pin');
 var levelElement = effectProgressElement.querySelector('.scale__level');
 
 var previewElement = pictureEditorElement.querySelector('.img-upload__preview');
 var previewPictureElement = previewElement.querySelector('img');
 
-/* Изменение размера изображения внутри оверлея */
+/* Изменение размера изображения внутри блока с редактированием изображения */
 var pictureSizeInputElement = document.querySelector('.resize__control--value');
 var pictureSizeMinusBtn = document.querySelector('.resize__control--minus');
 var pictureSizePlusBtn = document.querySelector('.resize__control--plus');
 
 var pictureSize = parseInt(pictureSizeInputElement.value, 10);
+
 var MIN_PICTURE_SIZE = 25;
 var MAX_PICTURE_SIZE = 100;
 var RESIZING_STEP = 25;
@@ -184,39 +200,29 @@ var applyPictureSize = function (size) {
   previewPictureElement.style.transform = 'scale(' + (size / 100) + ')';
 };
 
-var resizePicture = function (param) {
-  if (param === 'increase') {
+var resizePicture = function (isIncrease) {
+  if (isIncrease) {
     pictureSize += RESIZING_STEP;
-  }
-
-  if (param === 'decrease') {
+  } else {
     pictureSize -= RESIZING_STEP;
   }
 
-  if (pictureSize < MIN_PICTURE_SIZE) {
-    pictureSize = MIN_PICTURE_SIZE;
-  }
-
-  if (pictureSize > MAX_PICTURE_SIZE) {
-    pictureSize = MAX_PICTURE_SIZE;
-  }
+  pictureSize = getNumberFromRange(pictureSize, MIN_PICTURE_SIZE, MAX_PICTURE_SIZE);
 
   applyPictureSize(pictureSize);
 };
 
 var onPictureSizeMinusBtnClick = function () {
-  resizePicture('decrease');
+  resizePicture(false);
 };
 
 var onPictureSizePlusBtnClick = function () {
-  resizePicture('increase');
+  resizePicture(true);
 };
 
 /* Объект-мапа, со всеми поддерживаемыми эффектами */
-var effects = {
+var effectsMap = {
   'none': function () {
-    effectProgressElement.classList.toggle('hidden', true);
-
     return 'none';
   },
 
@@ -262,35 +268,155 @@ var changeProgress = function (value) {
   levelElement.style.width = value + '%';
 };
 
+var getUpdatedCoords = function (clientX) {
+  if (pinElement.offsetLeft === 0) {
+    if (clientX > window.lineElementLeftPos) {
+      return clientX;
+    }
+  }
+
+  if (pinElement.offsetLeft === window.lineElementWidth) {
+    if (clientX < window.lineElementRightPos) {
+      return clientX;
+    }
+  }
+
+  return clientX;
+};
+
+var onPinElementMouseDown = function (evt) {
+  evt.preventDefault();
+
+  lineElement.removeEventListener('click', onLineElementClick);
+
+  document.addEventListener('mousemove', onPinElementMouseMove);
+  document.addEventListener('mouseup', onPinElementMouseUp);
+};
+
+var onPinElementMouseMove = function (moveEvt) {
+  moveEvt.preventDefault();
+
+  setEffectLevel(getUpdatedCoords(moveEvt.clientX));
+};
+
+var onPinElementMouseUp = function (upEvt) {
+  upEvt.preventDefault();
+
+  lineElement.addEventListener('click', onLineElementClick);
+
+  document.removeEventListener('mousemove', onPinElementMouseMove);
+  document.removeEventListener('mouseup', onPinElementMouseUp);
+};
+
+var setEffectLevel = function (clientX) {
+  var effectLevel = (clientX - window.lineElementLeftPos) / window.lineElementWidth * 100;
+
+  effectLevel = getNumberFromRange(effectLevel, 0, 100);
+
+  applyEffect(selectedEffect, effectLevel.toFixed(2));
+};
+
+var onLineElementClick = function (evt) {
+  setEffectLevel(evt.clientX);
+};
+
+var enableEffectOverlay = function () {
+  lineElement.addEventListener('click', onLineElementClick);
+  pinElement.addEventListener('mousedown', onPinElementMouseDown);
+
+  window.lineElementLeftPos = lineElement.getBoundingClientRect().left;
+  window.lineElementRightPos = lineElement.getBoundingClientRect().right;
+  window.lineElementWidth = lineElement.offsetWidth;
+};
+
+var disableEffectOverlay = function () {
+  lineElement.removeEventListener('click', onLineElementClick);
+  pinElement.addEventListener('mousedown', onPinElementMouseDown);
+};
+
 var applyEffect = function (effectName, pinPosition) {
   effectValueElement.value = pinPosition;
   changeProgress(effectValueElement.value);
 
-  effectProgressElement.classList.toggle('hidden', false);
+  effectProgressElement.classList.toggle('hidden', effectName === 'none');
 
-  previewPictureElement.style.filter = effects[effectName](effectValueElement.value);
+  previewPictureElement.style.filter = effectsMap[effectName](effectValueElement.value);
 };
 
 var onPictureEditorEscPress = function (evt) {
   if (evt.keyCode === ESC_KEYCODE) {
-    closePictureEditor();
+    if (evt.target !== hashTagInputElement && evt.target !== textCommentElement) {
+      closePictureEditor();
+    }
   }
 };
 
+/* Поле ввода комментария к картинке */
+var textCommentElement = pictureEditorElement.querySelector('.text__description');
+
+/* Валидация хеш-тегов */
+var hashTagInputElement = pictureEditorElement.querySelector('.text__hashtags');
+
+var getFilteredArray = function (str, symbol) {
+  return str.split(symbol)
+    .filter(function (it) {
+      return it !== '';
+    });
+};
+
+var getHashTagValidity = function (hashTags) {
+  if (hashTags.length > 5) {
+    return 'Превышено максимальное количество тегов (максимум 5 - хеш-тегов)';
+  }
+
+  for (var i = 0; i < hashTags.length; i++) {
+    if (hashTags[i] === '#') {
+      return 'Хеш-тег не может состоять тольк из "#": ' + hashTags[i];
+    } else if (hashTags[i][0] !== '#') {
+      return 'Хеш-тег должен начинаться с "#": ' + hashTags[i];
+    }
+
+    if (hashTags[i].length > 20) {
+      return 'Превышена максимальная длина хеш-тега (20 - символов): ' + hashTags[i];
+    }
+
+    var currentHashTag = hashTags[i].toLowerCase();
+
+    for (var j = i + 1; j < hashTags.length; j++) {
+      var nextHashTag = hashTags[j].toLowerCase();
+
+      if (currentHashTag === nextHashTag) {
+        return 'Одинаковые хеш-теги: ' + hashTags[i] + ' и ' + hashTags[j];
+      }
+    }
+  }
+
+  return '';
+};
+
+var onHashTagInputElementInput = function () {
+  var filteredHashTags = getFilteredArray(hashTagInputElement.value, ' ');
+
+  hashTagInputElement.setCustomValidity(getHashTagValidity(filteredHashTags));
+};
+
+/* Открытие блока с редактированием изображения */
 var openPictureEditor = function () {
   applyPictureSize(pictureSize);
 
   checkedEffect.checked = true;
-  applyEffect(checkedEffect.value, defaultPinPosition);
+  applyEffect(checkedEffect.value, defaultEffectValue);
 
   pictureEditorElement.classList.remove('hidden');
 
   pictureSizeMinusBtn.addEventListener('click', onPictureSizeMinusBtnClick);
   pictureSizePlusBtn.addEventListener('click', onPictureSizePlusBtnClick);
 
-  document.addEventListener('keydown', onPictureEditorEscPress);
+  enableEffectOverlay();
 
+  document.addEventListener('keydown', onPictureEditorEscPress);
   closePictureEditorBtn.addEventListener('click', onClosePictureEditorBtnClick);
+  hashTagInputElement.addEventListener('input', onHashTagInputElementInput);
 };
 
 var onClosePictureEditorBtnClick = function () {
@@ -308,10 +434,14 @@ var closePictureEditor = function () {
 
   pictureSizeMinusBtn.removeEventListener('click', onPictureSizeMinusBtnClick);
   pictureSizePlusBtn.removeEventListener('click', onPictureSizePlusBtnClick);
+
+  hashTagInputElement.removeEventListener('input', onHashTagInputElementInput);
+  disableEffectOverlay();
 };
 
 var onEffectsElementChange = function (evt) {
-  applyEffect(evt.target.value, defaultPinPosition);
+  selectedEffect = evt.target.value;
+  applyEffect(selectedEffect, defaultEffectValue);
 };
 
 var uploadFile = function () {

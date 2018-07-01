@@ -30,7 +30,7 @@
         <div class="img-upload__wrapper">
           <h2 class="img-upload__title visually-hidden">Загрузка фотографии</h2>
 
-          <form class="img-upload__form" id="upload-select-image" method="post" enctype="multipart/form-data" autocomplete="off">
+          <form class="img-upload__form" id="upload-select-image" action="https://js.dump.academy/kekstagram" method="post" enctype="multipart/form-data" autocomplete="off">
 
             <fieldset class="img-upload__start">
               <input type="file" id="upload-file" class="img-upload__input visually-hidden" name="filename" required>
@@ -52,10 +52,10 @@
                   </div>
 
                   <fieldset class="img-upload__scale scale">
-                    <input type="number" class="scale__value" name="effect-level" value="100">
+                    <input type="number" class="scale__value" step="0.01" name="effect-level" value="100">
                     <div class="scale__line">
-                      <div class="scale__pin" tabindex="0">Кнопка изменения глубины эффекта фотографии</div>
                       <div class="scale__level">Глубина эффекта фотографии</div>
+                      <div class="scale__pin" tabindex="0">Кнопка изменения глубины эффекта фотографии</div>
                     </div>
                   </fieldset>
 
@@ -110,8 +110,8 @@
                 </fieldset>
 
                 <fieldset class="img-upload__text text">
-                  <input class="text__hashtags" name="hashtags" placeholder="#хэш-тег">
-                  <textarea class="text__description" name="description" placeholder="Ваш комментарий..."></textarea>
+                  <input class="text__hashtags" name="hashtags" minlength="2" placeholder="#хэш-тег">
+                  <textarea class="text__description" maxlength="140" name="description" placeholder="Ваш комментарий..."></textarea>
                 </fieldset>
 
                 <button type="submit" class="img-upload__submit" id="upload-submit">Опубликовать</button>
