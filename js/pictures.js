@@ -104,7 +104,7 @@ var createComment = function (comment) {
   return commentElement;
 };
 
-var getNumberFromRange = function (value, min, max) {
+var clump = function (value, min, max) {
   var number = value;
 
   if (number < min) {
@@ -207,7 +207,7 @@ var resizePicture = function (isIncrease) {
     pictureSize -= RESIZING_STEP;
   }
 
-  pictureSize = getNumberFromRange(pictureSize, MIN_PICTURE_SIZE, MAX_PICTURE_SIZE);
+  pictureSize = clump(pictureSize, MIN_PICTURE_SIZE, MAX_PICTURE_SIZE);
 
   applyPictureSize(pictureSize);
 };
@@ -268,70 +268,57 @@ var changeProgress = function (value) {
   levelElement.style.width = value + '%';
 };
 
-var getUpdatedCoords = function (clientX) {
-  if (pinElement.offsetLeft === 0) {
-    if (clientX > window.lineElementLeftPos) {
-      return clientX;
-    }
-  }
-
-  if (pinElement.offsetLeft === window.lineElementWidth) {
-    if (clientX < window.lineElementRightPos) {
-      return clientX;
-    }
-  }
-
-  return clientX;
-};
-
 var onPinElementMouseDown = function (evt) {
   evt.preventDefault();
 
-  lineElement.removeEventListener('click', onLineElementClick);
-
-  document.addEventListener('mousemove', onPinElementMouseMove);
-  document.addEventListener('mouseup', onPinElementMouseUp);
+  disableEffectOverlay();
+  enableMovePin();
 };
 
 var onPinElementMouseMove = function (moveEvt) {
   moveEvt.preventDefault();
 
-  setEffectLevel(getUpdatedCoords(moveEvt.clientX));
+  setEffectLevel(moveEvt.clientX);
 };
 
 var onPinElementMouseUp = function (upEvt) {
   upEvt.preventDefault();
 
-  lineElement.addEventListener('click', onLineElementClick);
+  setEffectLevel(upEvt.clientX);
 
+  enableEffectOverlay();
+  disableMovePin();
+};
+
+var enableMovePin = function () {
+  document.addEventListener('mousemove', onPinElementMouseMove);
+  document.addEventListener('mouseup', onPinElementMouseUp);
+};
+
+var disableMovePin = function () {
   document.removeEventListener('mousemove', onPinElementMouseMove);
   document.removeEventListener('mouseup', onPinElementMouseUp);
 };
 
-var setEffectLevel = function (clientX) {
-  var effectLevel = (clientX - window.lineElementLeftPos) / window.lineElementWidth * 100;
-
-  effectLevel = getNumberFromRange(effectLevel, 0, 100);
+var setEffectLevel = function (x) {
+  x = clump(x, window.lineElementMap.leftPos, window.lineElementMap.rightPos);
+  var effectLevel = (x - window.lineElementMap.leftPos) / window.lineElementMap.width * 100;
 
   applyEffect(selectedEffect, effectLevel.toFixed(2));
-};
-
-var onLineElementClick = function (evt) {
-  setEffectLevel(evt.clientX);
 };
 
 var enableEffectOverlay = function () {
   lineElement.addEventListener('click', onLineElementClick);
   pinElement.addEventListener('mousedown', onPinElementMouseDown);
-
-  window.lineElementLeftPos = lineElement.getBoundingClientRect().left;
-  window.lineElementRightPos = lineElement.getBoundingClientRect().right;
-  window.lineElementWidth = lineElement.offsetWidth;
 };
 
 var disableEffectOverlay = function () {
   lineElement.removeEventListener('click', onLineElementClick);
   pinElement.addEventListener('mousedown', onPinElementMouseDown);
+};
+
+var onLineElementClick = function (evt) {
+  setEffectLevel(evt.clientX);
 };
 
 var applyEffect = function (effectName, pinPosition) {
@@ -413,6 +400,12 @@ var openPictureEditor = function () {
   pictureSizePlusBtn.addEventListener('click', onPictureSizePlusBtnClick);
 
   enableEffectOverlay();
+
+  window.lineElementMap = {
+    leftPos: lineElement.getBoundingClientRect().left,
+    rightPos: lineElement.getBoundingClientRect().right,
+    width: lineElement.offsetWidth
+  };
 
   document.addEventListener('keydown', onPictureEditorEscPress);
   closePictureEditorBtn.addEventListener('click', onClosePictureEditorBtnClick);
