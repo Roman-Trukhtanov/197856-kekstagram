@@ -12,18 +12,8 @@
       return Math.floor(Math.random() * (max + 1 - min) + min);
     },
 
-    clump: function (value, min, max) {
-      var number = value;
-
-      if (number < min) {
-        number = min;
-      }
-
-      if (number > max) {
-        number = max;
-      }
-
-      return number;
+    clamp: function (value, min, max) {
+      return Math.max(min, Math.min(value, max));
     },
 
     getFilteredArray: function (str, symbol) {
@@ -31,6 +21,16 @@
         .filter(function (it) {
           return it !== '';
         });
+    },
+
+    fillFragment: function (arr) {
+      var fragment = document.createDocumentFragment();
+
+      for (var i = 0; i < arr.length; i++) {
+        fragment.appendChild(arr[i]);
+      }
+
+      return fragment;
     }
   };
 })();

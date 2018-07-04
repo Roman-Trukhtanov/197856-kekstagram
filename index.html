@@ -136,7 +136,7 @@
             <p class="social__caption">Тестим новую камеру! =)</p>
             <p class="social__likes">Нравится <span class="likes-count">356</span></p>
           </div>
-          <div class="social__comment-count">5 из <span class="comments-count">125</span> комментариев</div>
+          <div class="social__comment-count"><span class="comments-count--current">5</span> из <span class="comments-count">125</span> комментариев</div>
           <ul class="social__comments"></ul>
           <button class="social__loadmore" type="button">Загрузить еще</button>
           <div class="social__footer">
@@ -190,19 +190,30 @@
 
     <div class="img-upload__message img-upload__message--processing hidden">Кексограмим...</div>
 
-    <div class="img-upload__message img-upload__message--error error hidden">Ошибка загрузки файла
+    <div class="img-upload__message img-upload__message--error error hidden">
+      <p class="error-text">Ошибка загрузки</p>
+      <p class="error-message"></p>
       <div class="error__links">
         <a class="error__link" href="#">Попробовать снова</a>
-        <a class="error__link" href="#">Загрузить другой файл</a>
+      </div>
+    </div>
+
+    <div class="img-upload__message img-upload__message--success success hidden">
+      <p class="success-text">Файл успешно загружен!</p>
+      <div class="success__links">
+        <a class="success__link" href="#">ОК</a>
       </div>
     </div>
   </template>
 
+  <script src="js/backend.js"></script>
+  <script src="js/display-request-result.js"></script>
   <script src="js/utils.js"></script>
-  <script src="js/generate-data.js"></script>
-  <script src="js/preview.js"></script>
-  <script src="js/picture.js"></script>
+  <script src="js/preview-picture.js"></script>
   <script src="js/gallery.js"></script>
   <script src="js/edit-uploaded-image.js"></script>
+  <script src="js/validate-fields.js"></script>
+  <script src="js/resize-image.js"></script>
+  <script src="js/overlay-effect.js"></script>
 </body>
 </html>

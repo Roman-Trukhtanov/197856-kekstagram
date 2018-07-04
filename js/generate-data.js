@@ -19,6 +19,18 @@
     'Вот это тачка!'
   ];
 
+  var generateComments = function (amountComments) {
+    var comments = [];
+
+    for (var j = 0; j < amountComments; j++) {
+      comments.push(COMMENTS[
+        window.utils.getRandomInt(0, (COMMENTS.length - 1))
+      ]);
+    }
+
+    return comments;
+  };
+
   window.generateData = {
     generatePictures: function (picturesAmount, minLikes, maxLikes) {
       var pictures = [];
@@ -27,7 +39,7 @@
         pictures.push({
           'url': 'photos/' + (i + 1) + '.jpg',
           'likes': window.utils.getRandomInt(minLikes, maxLikes),
-          'comments': this.generateComments(window.utils.getRandomInt(1, 2)),
+          'comments': generateComments(window.utils.getRandomInt(1, 2)),
           'description': DESCRIPTIONS[
             window.utils.getRandomInt(0, (DESCRIPTIONS.length - 1))
           ]
@@ -35,18 +47,6 @@
       }
 
       return pictures;
-    },
-
-    generateComments: function (amountComments) {
-      var comments = [];
-
-      for (var j = 0; j < amountComments; j++) {
-        comments.push(COMMENTS[
-          window.utils.getRandomInt(0, (COMMENTS.length - 1))
-        ]);
-      }
-
-      return comments;
     }
   };
 })();
