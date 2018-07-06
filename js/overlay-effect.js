@@ -45,12 +45,10 @@
     },
 
     'heat': function (value) {
-      var coefficient = 1;
+      var minValue = 1;
       var maxValue = 3;
 
-      if (value !== 0) {
-        coefficient = maxValue * value / 100;
-      }
+      var coefficient = minValue + (value * (maxValue - minValue) / 100);
 
       return 'brightness(' + coefficient + ')';
     }
