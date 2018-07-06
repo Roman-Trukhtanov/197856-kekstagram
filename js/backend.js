@@ -4,12 +4,19 @@
   var LOAD_URL = 'https://js.dump.academy/kekstagram/data';
   var UPLOAD_URL = 'https://js.dump.academy/kekstagram';
 
-  var Status = {
+  var StatusNumber = {
     SUCCESSFUL: 200,
-    300: 'Ресурс переехал',
-    400: 'Неправильный запрос',
-    500: 'Ошибка на стороне сервера'
+    REDIRECT: 300,
+    BAD_REQUEST: 400,
+    INTERNAL_SERVER_ERROR: 500
   };
+
+  var StatusMessage = {};
+
+  StatusMessage[StatusNumber['SUCCESSFUL']] = 'Успешно отправлен';
+  StatusMessage[StatusNumber['REDIRECT']] = 'Ресурс переехал';
+  StatusMessage[StatusNumber['BAD_REQUEST']] = 'Неправильный запрос';
+  StatusMessage[StatusNumber['INTERNAL_SERVER_ERROR']] = 'Ошибка на стороне сервера';
 
   var TIMEOUT = 20000;
 
@@ -19,7 +26,7 @@
     xhr.timeout = TIMEOUT;
 
     xhr.addEventListener('load', function () {
-      if (xhr.status === Status.SUCCESSFUL) {
+      if (xhr.status === StatusNumber.SUCCESSFUL) {
         onLoad(xhr.response);
       } else {
         onError('Cтатус ответа: ' + xhr.status + ' ' + xhr.statusText);
@@ -27,9 +34,7 @@
     });
 
     xhr.addEventListener('error', function () {
-      var messageError = (xhr.status in Status)
-        ? Status[xhr.status]
-        : 'Cтатус ответа: ' + xhr.status + ' ' + xhr.statusText;
+      var messageError = (StatusMessage[xhr.status]) || 'Cтатус ответа: ' + xhr.status + ' ' + xhr.statusText;
 
       onError(messageError);
     });

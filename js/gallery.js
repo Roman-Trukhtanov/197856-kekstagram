@@ -42,20 +42,20 @@
   };
 
   var sortFiltersMap = {
-    'filter-popular': function (sortedArray) {
+    'filter-popular': window.utils.debounce(function (sortedArray) {
       removePictureElements();
-      window.utils.debounce(renderPictures(sortedArray));
-    },
+      renderPictures(sortedArray);
+    }),
 
-    'filter-new': function (sortedArray) {
+    'filter-new': window.utils.debounce(function (sortedArray) {
       var sortedByNewPictures = sortedArray.slice();
       sortedByNewPictures = window.utils.shuffleArray(sortedByNewPictures).slice(15);
 
       removePictureElements();
-      window.utils.debounce(renderPictures(sortedByNewPictures));
-    },
+      renderPictures(sortedByNewPictures);
+    }),
 
-    'filter-discussed': function (sortedArray) {
+    'filter-discussed': window.utils.debounce(function (sortedArray) {
       var sortedByCommentsOrder = sortedArray.slice()
         .sort(function (a, b) {
           return b.comments.length - a.comments.length;
@@ -63,8 +63,8 @@
 
       removePictureElements();
 
-      window.utils.debounce(renderPictures(sortedByCommentsOrder));
-    }
+      renderPictures(sortedByCommentsOrder);
+    })
   };
 
   var onImgFiltersContainerClick = function (evt) {

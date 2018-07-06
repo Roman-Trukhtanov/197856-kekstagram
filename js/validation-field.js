@@ -40,7 +40,7 @@
   };
 
   var onHashTagInputElementInput = function () {
-    window.utils.debounce(checkValidityField());
+    checkValidityField();
   };
 
   var checkValidityField = function () {
