@@ -40,6 +40,8 @@
   };
 
   var enableResizeImage = function (element) {
+    pictureSizeMinusBtn.focus();
+
     previewPicture = element;
     applyPictureSize(pictureSize, previewPicture);
 
