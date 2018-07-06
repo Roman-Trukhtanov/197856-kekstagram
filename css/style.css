@@ -379,7 +379,7 @@ main {
 }
 
 .img-upload__message {
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
 
@@ -395,6 +395,11 @@ main {
   color: #ffe753;
 
   background-color: #3c3614;
+}
+
+.img-upload__message--success {
+  color: #86ec7a;
+  background-color: #001c0b;
 }
 
 .img-upload__message--dragndrop {
@@ -453,7 +458,8 @@ main {
           transform: translateX(-50%);
 }
 
-.img-upload__message--error {
+.img-upload__message--error,
+.img-upload__message--success {
   padding-top: 275px;
 
   font-family: "Open Sans", "Arial", sans-serif;
@@ -478,15 +484,17 @@ main {
           transform: translateX(-50%);
 }
 
-.error__links {
+.error__links,
+.success__links {
   margin-top: 30px;
 }
 
-.error__link {
+.error__link,
+.success__link {
   color: #ffffff;
 }
 
-.error__link:first-child {
+.error__link:not(:last-child) {
   margin-right: 30px;
 }
 
@@ -831,13 +839,14 @@ main {
 
   margin: 0 auto;
   margin-bottom: 20px;
-  padding: 5px 10px;
+  padding: 8px 10px;
 
   font-family: "Open Sans", "Arial", sans-serif;
   font-weight: 400;
   color: #000000;
 
   border-radius: 5px;
+  border: 3px solid #808080;
 }
 
 .text__description {
@@ -852,9 +861,19 @@ main {
   color: #000000;
 
   border-radius: 5px;
+  border: 3px solid #808080;
 }
 
+.text__description:focus,
+.text__hashtags:focus {
+  outline: none;
+  border: 3px solid #199D24;
+}
 
+.img-upload__text .text__hashtags--error,
+.img-upload__text .text__description--error {
+  border: 3px solid #e90000;
+}
 /* Кнопка отправки формы */
 
 .img-upload__submit {
