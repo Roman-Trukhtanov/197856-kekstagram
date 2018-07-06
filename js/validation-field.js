@@ -40,7 +40,7 @@
   };
 
   var onHashTagInputElementInput = function () {
-    checkValidityField();
+    window.utils.debounce(checkValidityField());
   };
 
   var checkValidityField = function () {
@@ -52,16 +52,19 @@
     hashTagInputElement.setCustomValidity(message);
   };
 
-  window.validateFields = {
-    textCommentElement: textCommentElement,
-    hashTagInputElement: hashTagInputElement,
+  var enableValidationField = function () {
+    hashTagInputElement.addEventListener('input', onHashTagInputElementInput);
+  };
 
-    enableValidationField: function () {
-      hashTagInputElement.addEventListener('input', onHashTagInputElementInput);
-    },
+  var disableValidationField = function () {
+    hashTagInputElement.value = '';
+    textCommentElement.value = '';
+    hashTagInputElement.removeEventListener('input', onHashTagInputElementInput);
+  };
 
-    disableValidationField: function () {
-      hashTagInputElement.removeEventListener('input', onHashTagInputElementInput);
-    }
+  window.validationField = {
+    enableValidationField: enableValidationField,
+
+    disableValidationField: disableValidationField
   };
 })();

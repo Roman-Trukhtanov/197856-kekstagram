@@ -12,10 +12,12 @@
   var MAX_PICTURE_SIZE = 100;
   var RESIZING_STEP = 25;
 
+  var previewPicture = null;
+
   var applyPictureSize = function (size) {
     pictureSizeInputElement.value = size + '%';
 
-    window.editUploadedImage.previewPictureElement.style.transform = 'scale(' + (size / 100) + ')';
+    previewPicture.style.transform = 'scale(' + (size / 100) + ')';
   };
 
   var resizePicture = function (isIncrease) {
@@ -36,8 +38,9 @@
     resizePicture(true);
   };
 
-  var enableResizeImage = function () {
-    applyPictureSize(pictureSize);
+  var enableResizeImage = function (element) {
+    previewPicture = element;
+    applyPictureSize(pictureSize, previewPicture);
 
     pictureSizeMinusBtn.addEventListener('click', onPictureSizeMinusBtnClick);
     pictureSizePlusBtn.addEventListener('click', onPictureSizePlusBtnClick);
@@ -52,6 +55,7 @@
 
   window.resizeImage = {
     enableResizeImage: enableResizeImage,
+
     disableResizeImage: disableResizeImage
   };
 })();

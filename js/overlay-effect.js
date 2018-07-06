@@ -1,11 +1,11 @@
 'use strict';
 
 (function () {
-  var effectsElement = window.editUploadedImage.pictureEditorElement.querySelector('.img-upload__effects');
+  var effectsElement = document.querySelector('.img-upload__effects');
   var checkedEffect = effectsElement.querySelector('.effects__radio:checked');
   var selectedEffect = checkedEffect.value;
 
-  var effectProgressElement = window.editUploadedImage.pictureEditorElement.querySelector('.img-upload__scale');
+  var effectProgressElement = document.querySelector('.img-upload__scale');
   var effectValueElement = effectProgressElement.querySelector('.scale__value');
   var defaultEffectValue = effectValueElement.value;
 
@@ -57,6 +57,8 @@
   };
 
   var lineElementProps = {};
+
+  var previewPicture = null;
 
   var changeProgress = function (value) {
     pinElement.style.left = value + '%';
@@ -122,7 +124,7 @@
 
     effectProgressElement.classList.toggle('hidden', effectName === 'none');
 
-    window.editUploadedImage.previewPictureElement.style.filter = effectsMap[effectName](effectValueElement.value);
+    previewPicture.style.filter = effectsMap[effectName](effectValueElement.value);
   };
 
   var onEffectsElementChange = function (evt) {
@@ -130,7 +132,9 @@
     applyEffect(selectedEffect, defaultEffectValue);
   };
 
-  var enableApplicationEffect = function () {
+  var enableApplicationEffect = function (element) {
+    previewPicture = element;
+
     checkedEffect.checked = true;
     applyEffect(checkedEffect.value, defaultEffectValue);
 

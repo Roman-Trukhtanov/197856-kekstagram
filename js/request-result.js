@@ -1,47 +1,43 @@
 'use strict';
 
 (function () {
-  var messageErrorContainer = document.querySelector('#picture')
+  var messageErrorTemplate = document.querySelector('#picture')
     .content
     .querySelector('.img-upload__message--error')
     .cloneNode(true);
 
-  var messageSuccessContainer = document.querySelector('#picture')
+  var messageSuccessTemplate = document.querySelector('#picture')
     .content
     .querySelector('.img-upload__message--success')
     .cloneNode(true);
 
   var displayError = function (message) {
-    messageErrorContainer.querySelector('.error-message').textContent = message;
+    messageErrorTemplate.querySelector('.error-message').textContent = message;
 
-    var reloadElement = messageErrorContainer.querySelector('.error__link');
+    var reloadElement = messageErrorTemplate.querySelector('.error__link');
 
-    document.body.appendChild(messageErrorContainer);
+    document.body.appendChild(messageErrorTemplate);
 
-    messageErrorContainer.classList.remove('hidden');
+    messageErrorTemplate.classList.remove('hidden');
 
     reloadElement.addEventListener('click', function () {
-      reloadPage();
+      window.location.reload();
     });
 
     document.addEventListener('keydown', onMessageErrorContainerEscPress);
   };
 
-  var reloadPage = function () {
-    window.location.reload();
-  };
-
   var onMessageErrorContainerEscPress = function (evt) {
     if (window.utils.isEscKeycode(evt)) {
-      reloadPage();
+      window.location.reload();
     }
   };
 
   var displaySuccess = function () {
-    var linkElement = messageSuccessContainer.querySelector('.success__link');
+    var linkElement = messageSuccessTemplate.querySelector('.success__link');
 
-    document.body.appendChild(messageSuccessContainer);
-    messageSuccessContainer.classList.remove('hidden');
+    document.body.appendChild(messageSuccessTemplate);
+    messageSuccessTemplate.classList.remove('hidden');
 
     linkElement.addEventListener('click', function () {
       closeMessageSuccess();
@@ -57,12 +53,13 @@
   };
 
   var closeMessageSuccess = function () {
-    messageSuccessContainer.classList.add('hidden');
+    messageSuccessTemplate.classList.add('hidden');
 
-    document.body.removeChild(messageSuccessContainer);
+    document.removeEventListener('keydown', onMessageSuccessContainerEscPress);
+    document.body.removeChild(messageSuccessTemplate);
   };
 
-  window.displayRequestResult = {
+  window.requestResult = {
     displayError: displayError,
     displaySuccess: displaySuccess
   };

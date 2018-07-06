@@ -64,7 +64,18 @@
     closePictureOverlay();
   };
 
-  var openPictureOverlay = function (picture) {
+  var closePictureOverlay = function () {
+    currentAddedComments = 0;
+
+    document.body.classList.remove('modal-open');
+    pictureOverlayContainer.classList.add('hidden');
+
+    closePictureOverlayBtn.removeEventListener('click', onClosePictureOverlayBtnClick);
+    document.removeEventListener('keydown', onPictureOverlayEscPress);
+    loadMoreCommentsBtn.removeEventListener('click', onLoadMoreCommentsBtnClick);
+  };
+
+  window.openPictureOverlay = function (picture) {
     commentsContainer.innerHTML = '';
 
     pictureOverlayContainer.querySelector('.big-picture__img').querySelector('img').src = picture.url;
@@ -91,17 +102,4 @@
 
     loadMoreCommentsBtn.addEventListener('click', onLoadMoreCommentsBtnClick);
   };
-
-  var closePictureOverlay = function () {
-    currentAddedComments = 0;
-
-    document.body.classList.remove('modal-open');
-    pictureOverlayContainer.classList.add('hidden');
-
-    closePictureOverlayBtn.removeEventListener('click', onClosePictureOverlayBtnClick);
-    document.removeEventListener('keydown', onPictureOverlayEscPress);
-    loadMoreCommentsBtn.removeEventListener('click', onLoadMoreCommentsBtnClick);
-  };
-
-  window.previewPicture = openPictureOverlay;
 })();

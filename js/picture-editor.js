@@ -13,8 +13,7 @@
 
   var onPictureEditorEscPress = function (evt) {
     if (window.utils.isEscKeycode(evt)
-      && evt.target !== window.validateFields.hashTagInputElement
-      && evt.target !== window.validateFields.textCommentElement) {
+      && window.utils.isFocusOnField(evt.target.tagName)) {
 
       closePictureEditor();
     }
@@ -25,13 +24,13 @@
     document.body.classList.add('modal-open');
     pictureEditorElement.classList.remove('hidden');
 
-    window.resizeImage.enableResizeImage();
-    window.overlayEffect.enableApplicationEffect();
+    window.resizeImage.enableResizeImage(previewPictureElement);
+    window.overlayEffect.enableApplicationEffect(previewPictureElement);
 
     document.addEventListener('keydown', onPictureEditorEscPress);
     closePictureEditorBtn.addEventListener('click', onClosePictureEditorBtnClick);
 
-    window.validateFields.enableValidationField();
+    window.validationField.enableValidationField();
     uploadFormElement.addEventListener('submit', onUploadFormElementSubmit);
   };
 
@@ -53,18 +52,18 @@
 
     uploadFormElement.removeEventListener('submit', onUploadFormElementSubmit);
 
-    window.validateFields.disableValidationField();
+    window.validationField.disableValidationField();
   };
 
   var onLoadForm = function () {
     closePictureEditor();
-    window.displayRequestResult.displaySuccess();
+    window.requestResult.displaySuccess();
   };
 
 
   var onErrorForm = function (message) {
     closePictureEditor();
-    window.displayRequestResult.displayError(message);
+    window.requestResult.displayError(message);
   };
 
   var onUploadFormElementSubmit = function (evt) {
@@ -79,9 +78,4 @@
   };
 
   uploadFile();
-
-  window.editUploadedImage = {
-    previewPictureElement: previewPictureElement,
-    pictureEditorElement: pictureEditorElement
-  };
 })();
