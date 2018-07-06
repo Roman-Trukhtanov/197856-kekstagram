@@ -7,6 +7,7 @@
   var pictureSizePlusBtn = document.querySelector('.resize__control--plus');
 
   var pictureSize = parseInt(pictureSizeInputElement.value, 10);
+  var defaultPictureSize = pictureSize;
 
   var MIN_PICTURE_SIZE = 25;
   var MAX_PICTURE_SIZE = 100;
@@ -47,7 +48,7 @@
   };
 
   var disableResizeImage = function () {
-    pictureSize = MAX_PICTURE_SIZE;
+    pictureSize = defaultPictureSize;
 
     pictureSizeMinusBtn.removeEventListener('click', onPictureSizeMinusBtnClick);
     pictureSizePlusBtn.removeEventListener('click', onPictureSizePlusBtnClick);
