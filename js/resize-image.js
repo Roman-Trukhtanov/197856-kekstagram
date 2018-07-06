@@ -1,6 +1,10 @@
 'use strict';
 
 (function () {
+  var MIN_PICTURE_SIZE = 25;
+  var MAX_PICTURE_SIZE = 100;
+  var RESIZING_STEP = 25;
+
   /* Изменение размера изображения внутри блока с редактированием изображения */
   var pictureSizeInputElement = document.querySelector('.resize__control--value');
   var pictureSizeMinusBtn = document.querySelector('.resize__control--minus');
@@ -8,10 +12,6 @@
 
   var pictureSize = parseInt(pictureSizeInputElement.value, 10);
   var defaultPictureSize = pictureSize;
-
-  var MIN_PICTURE_SIZE = 25;
-  var MAX_PICTURE_SIZE = 100;
-  var RESIZING_STEP = 25;
 
   var previewPicture = null;
 

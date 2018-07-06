@@ -1,6 +1,8 @@
 'use strict';
 
 (function () {
+  var MAX_COMMENTS_LENGTH = 5;
+
   var pictureOverlayContainer = document.querySelector('.big-picture');
   var commentsContainer = pictureOverlayContainer.querySelector('.social__comments');
   var closePictureOverlayBtn = pictureOverlayContainer.querySelector('#picture-cancel');
@@ -28,7 +30,6 @@
 
   var cloneComments = [];
   var currentAddedComments = null;
-  var MAX_COMMENTS_LENGTH = 5;
 
   var fillCommentsContainer = function (commentsLength) {
     currentAddedComments += commentsLength;

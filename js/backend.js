@@ -3,6 +3,7 @@
 (function () {
   var LOAD_URL = 'https://js.dump.academy/kekstagram/data';
   var UPLOAD_URL = 'https://js.dump.academy/kekstagram';
+  var TIMEOUT = 20000;
 
   var StatusNumber = {
     SUCCESSFUL: 200,
@@ -17,8 +18,6 @@
   StatusMessage[StatusNumber['REDIRECT']] = 'Ресурс переехал';
   StatusMessage[StatusNumber['BAD_REQUEST']] = 'Неправильный запрос';
   StatusMessage[StatusNumber['INTERNAL_SERVER_ERROR']] = 'Ошибка на стороне сервера';
-
-  var TIMEOUT = 20000;
 
   var setupRequest = function (onLoad, onError) {
     var xhr = new XMLHttpRequest();
