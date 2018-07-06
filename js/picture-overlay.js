@@ -28,7 +28,7 @@
     return commentElement;
   };
 
-  var cloneComments = [];
+  var clonedComments = [];
   var currentAddedComments = null;
 
   var fillCommentsContainer = function (commentsLength) {
@@ -36,13 +36,13 @@
 
     for (var i = 0; i < commentsLength; i++) {
       commentsContainer.appendChild(
-          createComment(cloneComments[0])
+          createComment(clonedComments[0])
       );
 
-      cloneComments.splice(0, 1);
+      clonedComments.splice(0, 1);
     }
 
-    if (cloneComments.length === 0) {
+    if (clonedComments.length === 0) {
       loadMoreCommentsBtn.classList.add('hidden');
     }
 
@@ -52,7 +52,7 @@
   var onLoadMoreCommentsBtnClick = function (evt) {
     evt.preventDefault();
 
-    fillCommentsContainer(window.utils.clamp(cloneComments.length, 0, MAX_COMMENTS_LENGTH));
+    fillCommentsContainer(window.utils.clamp(clonedComments.length, 0, MAX_COMMENTS_LENGTH));
   };
 
   var onPictureOverlayEscPress = function (evt) {
@@ -87,11 +87,11 @@
 
     pictureDescriptionElement.textContent = picture.description ? picture.description : '';
 
-    cloneComments = picture.comments.slice();
+    clonedComments = picture.comments.slice();
 
     loadMoreCommentsBtn.classList.toggle('hidden', (picture.comments.length <= 5));
 
-    fillCommentsContainer(window.utils.clamp(cloneComments.length, 0, MAX_COMMENTS_LENGTH));
+    fillCommentsContainer(window.utils.clamp(clonedComments.length, 0, MAX_COMMENTS_LENGTH));
 
     document.body.classList.add('modal-open');
 
