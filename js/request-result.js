@@ -21,7 +21,7 @@
     messageErrorTemplate.classList.remove('hidden');
 
     reloadElement.addEventListener('click', function () {
-      window.location.reload();
+      closeMessageError();
     });
 
     document.addEventListener('keydown', onMessageErrorContainerEscPress);
@@ -29,7 +29,7 @@
 
   var onMessageErrorContainerEscPress = function (evt) {
     if (window.utils.isEscKeycode(evt)) {
-      window.location.reload();
+      closeMessageError();
     }
   };
 
@@ -57,6 +57,15 @@
 
     document.removeEventListener('keydown', onMessageSuccessContainerEscPress);
     document.body.removeChild(messageSuccessTemplate);
+  };
+
+  var closeMessageError = function () {
+    messageErrorTemplate.classList.add('hidden');
+
+    document.removeEventListener('keydown', onMessageErrorContainerEscPress);
+    document.body.removeChild(messageErrorTemplate);
+
+    window.location.reload();
   };
 
   window.requestResult = {

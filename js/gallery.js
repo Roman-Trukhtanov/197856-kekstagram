@@ -24,7 +24,7 @@
   var picturesData = null;
 
   var removePictureElements = function () {
-    var pictureElements = picturesContainer.querySelectorAll('.picture__link');
+    var pictureElements = Array.from(picturesContainer.querySelectorAll('.picture__link'));
 
     pictureElements.forEach(function (it) {
       picturesContainer.removeChild(it);

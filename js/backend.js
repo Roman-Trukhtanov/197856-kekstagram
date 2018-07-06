@@ -12,12 +12,12 @@
     INTERNAL_SERVER_ERROR: 500
   };
 
-  var StatusMessage = {};
+  var statusMessagesMap = {};
 
-  StatusMessage[StatusNumber['SUCCESSFUL']] = 'Успешно отправлен';
-  StatusMessage[StatusNumber['REDIRECT']] = 'Ресурс переехал';
-  StatusMessage[StatusNumber['BAD_REQUEST']] = 'Неправильный запрос';
-  StatusMessage[StatusNumber['INTERNAL_SERVER_ERROR']] = 'Ошибка на стороне сервера';
+  statusMessagesMap[StatusNumber['SUCCESSFUL']] = 'Успешно отправлен';
+  statusMessagesMap[StatusNumber['REDIRECT']] = 'Ресурс переехал';
+  statusMessagesMap[StatusNumber['BAD_REQUEST']] = 'Неправильный запрос';
+  statusMessagesMap[StatusNumber['INTERNAL_SERVER_ERROR']] = 'Ошибка на стороне сервера';
 
   var setupRequest = function (onLoad, onError) {
     var xhr = new XMLHttpRequest();
@@ -33,7 +33,7 @@
     });
 
     xhr.addEventListener('error', function () {
-      var messageError = (StatusMessage[xhr.status]) || 'Cтатус ответа: ' + xhr.status + ' ' + xhr.statusText;
+      var messageError = (statusMessagesMap[xhr.status]) || 'Cтатус ответа: ' + xhr.status + ' ' + xhr.statusText;
 
       onError(messageError);
     });
