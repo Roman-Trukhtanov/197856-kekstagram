@@ -1,6 +1,9 @@
 'use strict';
 
 (function () {
+  var USER_ICON_WIDTH = 35;
+  var USER_ICON_HEIGHT = 35;
+
   var MAX_COMMENTS_LENGTH = 5;
 
   var pictureOverlayContainer = document.querySelector('.big-picture');
@@ -19,8 +22,8 @@
     userIconElement.classList.add('social__picture');
     userIconElement.src = 'img/avatar-' + window.utils.getRandomInt(1, 6) + '.svg';
     userIconElement.alt = 'Аватар комментатора фотографии';
-    userIconElement.width = 35;
-    userIconElement.height = 35;
+    userIconElement.width = USER_ICON_WIDTH;
+    userIconElement.height = USER_ICON_HEIGHT;
 
     commentElement.appendChild(userIconElement);
     commentElement.appendChild(commentText);

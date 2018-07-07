@@ -109,7 +109,7 @@
 
   var disableEffectOverlay = function () {
     lineElement.removeEventListener('click', onLineElementClick);
-    pinElement.addEventListener('mousedown', onPinElementMouseDown);
+    pinElement.removeEventListener('mousedown', onPinElementMouseDown);
   };
 
   var onLineElementClick = function (evt) {
