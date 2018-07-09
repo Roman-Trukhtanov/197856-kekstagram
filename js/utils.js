@@ -2,12 +2,22 @@
 
 (function () {
   var ESC_KEYCODE = 27;
+  var LEFT_ARROW_KEYCODE = 37;
+  var RIGHT_ARROW_KEYCODE = 39;
 
   var DEBOUNCE_INTERVAL = 500;
 
   window.utils = {
     isEscKeycode: function (evt) {
       return evt.keyCode === ESC_KEYCODE;
+    },
+
+    isLeftArrowKeycode: function (evt) {
+      return evt.keyCode === LEFT_ARROW_KEYCODE;
+    },
+
+    isRightArrowKeycode: function (evt) {
+      return evt.keyCode === RIGHT_ARROW_KEYCODE;
     },
 
     getRandomInt: function (min, max) {

@@ -1,13 +1,17 @@
 'use strict';
 
 (function () {
+  var APPLY_EFFECT_STEP = 1;
+  var MIN_EFFECT_VALUE = 0;
+  var MAX_EFFECT_VALUE = 100;
+
   var effectsElement = document.querySelector('.img-upload__effects');
   var checkedEffect = effectsElement.querySelector('.effects__radio:checked');
   var selectedEffect = checkedEffect.value;
 
   var effectProgressElement = document.querySelector('.img-upload__scale');
   var effectValueElement = effectProgressElement.querySelector('.scale__value');
-  var defaultEffectValue = effectValueElement.value;
+  var defaultEffectValue = parseFloat(effectValueElement.value);
 
   var lineElement = effectProgressElement.querySelector('.scale__line');
   var pinElement = effectProgressElement.querySelector('.scale__pin');
@@ -83,6 +87,7 @@
 
     enableEffectOverlay();
     disableMovePin();
+    pinElement.focus();
   };
 
   var enableMovePin = function () {
@@ -105,19 +110,25 @@
   var enableEffectOverlay = function () {
     lineElement.addEventListener('click', onLineElementClick);
     pinElement.addEventListener('mousedown', onPinElementMouseDown);
+    pinElement.addEventListener('focus', onPinElementFocus);
+    pinElement.addEventListener('blur', onPinElementBlur);
   };
 
   var disableEffectOverlay = function () {
     lineElement.removeEventListener('click', onLineElementClick);
     pinElement.removeEventListener('mousedown', onPinElementMouseDown);
+    pinElement.removeEventListener('focus', onPinElementFocus);
+    pinElement.removeEventListener('blur', onPinElementBlur);
   };
 
   var onLineElementClick = function (evt) {
     setEffectLevel(evt.clientX);
+    pinElement.focus();
   };
 
   var applyEffect = function (effectName, pinPosition) {
     effectValueElement.value = pinPosition;
+
     changeProgress(effectValueElement.value);
 
     effectProgressElement.classList.toggle('hidden', effectName === 'none');
@@ -145,6 +156,42 @@
       rightPos: lineElement.getBoundingClientRect().right,
       width: lineElement.offsetWidth
     };
+  };
+
+  var onPinElementFocus = function () {
+    enableArrowPress();
+  };
+
+  var onPinElementBlur = function () {
+    disableArrowPress();
+  };
+
+  var enableArrowPress = function () {
+    document.addEventListener('keydown', onPinElementArrowPress);
+  };
+
+  var disableArrowPress = function () {
+    document.removeEventListener('keydown', onPinElementArrowPress);
+  };
+
+  var onPinElementArrowPress = function (evt) {
+    if (window.utils.isLeftArrowKeycode(evt)) {
+      changeSuperimposedEffect(false);
+    }
+
+    if (window.utils.isRightArrowKeycode(evt)) {
+      changeSuperimposedEffect(true);
+    }
+  };
+
+  var changeSuperimposedEffect = function (isIncrease) {
+    var updatedEffectValue = isIncrease
+      ? parseFloat(effectValueElement.value) + APPLY_EFFECT_STEP
+      : parseFloat(effectValueElement.value) - APPLY_EFFECT_STEP;
+
+    updatedEffectValue = window.utils.clamp(updatedEffectValue, MIN_EFFECT_VALUE, MAX_EFFECT_VALUE);
+
+    applyEffect(selectedEffect, updatedEffectValue);
   };
 
   var disableApplicationEffect = function () {

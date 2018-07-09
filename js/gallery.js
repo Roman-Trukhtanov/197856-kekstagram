@@ -96,7 +96,7 @@
   };
 
   var onError = function (message) {
-    window.requestResult.displayError(message);
+    window.requestResult.displayError(message, true);
   };
 
   window.backend.load(onSuccess, onError);

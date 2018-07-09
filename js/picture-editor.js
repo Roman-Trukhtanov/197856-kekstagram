@@ -19,21 +19,6 @@
     }
   };
 
-  /* Открытие блока с редактированием изображения */
-  var openPictureEditor = function () {
-    document.body.classList.add('modal-open');
-    pictureEditorElement.classList.remove('hidden');
-
-    window.resizeImage.enableResizeImage(previewPictureElement);
-    window.overlayEffect.enableApplicationEffect(previewPictureElement);
-
-    document.addEventListener('keydown', onPictureEditorEscPress);
-    closePictureEditorBtn.addEventListener('click', onClosePictureEditorBtnClick);
-
-    window.validationField.enableValidationField();
-    uploadFormElement.addEventListener('submit', onUploadFormElementSubmit);
-  };
-
   var onClosePictureEditorBtnClick = function () {
     closePictureEditor();
   };
@@ -63,7 +48,7 @@
 
   var onErrorForm = function (message) {
     closePictureEditor();
-    window.requestResult.displayError(message);
+    window.requestResult.displayError(message, true);
   };
 
   var onUploadFormElementSubmit = function (evt) {
@@ -73,9 +58,24 @@
 
   var uploadFile = function () {
     uploadFileElement.addEventListener('change', function () {
-      openPictureEditor();
+      window.readFile(uploadFileElement, previewPictureElement);
     });
   };
 
   uploadFile();
+
+  /* Открытие блока с редактированием изображения */
+  window.openPictureEditor = function () {
+    document.body.classList.add('modal-open');
+    pictureEditorElement.classList.remove('hidden');
+
+    window.resizeImage.enableResizeImage(previewPictureElement);
+    window.overlayEffect.enableApplicationEffect(previewPictureElement);
+
+    document.addEventListener('keydown', onPictureEditorEscPress);
+    closePictureEditorBtn.addEventListener('click', onClosePictureEditorBtnClick);
+
+    window.validationField.enableValidationField();
+    uploadFormElement.addEventListener('submit', onUploadFormElementSubmit);
+  };
 })();
