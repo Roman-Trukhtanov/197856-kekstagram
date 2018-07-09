@@ -3,7 +3,7 @@
 (function () {
   var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
 
-  window.readFile = function (inputTypeFile, previewPicture) {
+  window.readFile = function (inputTypeFile, previewPicture, callback) {
     var file = inputTypeFile.files[0];
     var fileName = file.name.toLowerCase();
 
@@ -16,8 +16,7 @@
 
       reader.addEventListener('load', function () {
         previewPicture.src = reader.result;
-
-        window.openPictureEditor();
+        callback();
       });
 
       reader.readAsDataURL(file);
