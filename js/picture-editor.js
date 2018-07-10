@@ -26,7 +26,6 @@
   /* Открытие блока с редактированием изображения */
   var openPictureEditor = function (fileUrl) {
     previewPictureElement.src = fileUrl;
-    
     document.body.classList.add('modal-open');
     pictureEditorElement.classList.remove('hidden');
 
