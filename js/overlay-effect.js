@@ -17,45 +17,54 @@
   var pinElement = effectProgressElement.querySelector('.scale__pin');
   var levelElement = effectProgressElement.querySelector('.scale__level');
 
+  var Effect = {
+    NONE: 'none',
+    CHROME: 'chrome',
+    SEPIA: 'sepia',
+    MARVIN: 'marvin',
+    PHOBOS: 'phobos',
+    HEAT: 'heat'
+  };
+
   /* Объект-мапа, со всеми поддерживаемыми эффектами */
-  var effectsMap = {
-    'none': function () {
-      return 'none';
-    },
+  var effectsMap = {};
 
-    'chrome': function (value) {
-      var maxValue = 1;
-      var coefficient = maxValue * value / 100;
+  effectsMap[Effect.NONE] = function () {
+    return 'none';
+  };
 
-      return 'grayscale(' + coefficient + ')';
-    },
+  effectsMap[Effect.CHROME] = function (value) {
+    var maxValue = 1;
+    var coefficient = maxValue * value / 100;
 
-    'sepia': function (value) {
-      var maxValue = 1;
-      var coefficient = maxValue * value / 100;
+    return 'grayscale(' + coefficient + ')';
+  };
 
-      return 'sepia(' + coefficient + ')';
-    },
+  effectsMap[Effect.SEPIA] = function (value) {
+    var maxValue = 1;
+    var coefficient = maxValue * value / 100;
 
-    'marvin': function (value) {
-      return 'invert(' + value + '%)';
-    },
+    return 'sepia(' + coefficient + ')';
+  };
 
-    'phobos': function (value) {
-      var maxValue = 3;
-      var coefficient = maxValue * value / 100;
+  effectsMap[Effect.MARVIN] = function (value) {
+    return 'invert(' + value + '%)';
+  };
 
-      return 'blur(' + coefficient + 'px)';
-    },
+  effectsMap[Effect.PHOBOS] = function (value) {
+    var maxValue = 3;
+    var coefficient = maxValue * value / 100;
 
-    'heat': function (value) {
-      var minValue = 1;
-      var maxValue = 3;
+    return 'blur(' + coefficient + 'px)';
+  };
 
-      var coefficient = minValue + (value * (maxValue - minValue) / 100);
+  effectsMap[Effect.HEAT] = function (value) {
+    var minValue = 1;
+    var maxValue = 3;
 
-      return 'brightness(' + coefficient + ')';
-    }
+    var coefficient = minValue + (value * (maxValue - minValue) / 100);
+
+    return 'brightness(' + coefficient + ')';
   };
 
   var lineElementProps = {};
@@ -131,7 +140,7 @@
 
     changeProgress(effectValueElement.value);
 
-    effectProgressElement.classList.toggle('hidden', effectName === 'none');
+    effectProgressElement.classList.toggle('hidden', effectName === Effect.NONE);
 
     previewPicture.style.filter = effectsMap[effectName](effectValueElement.value);
   };

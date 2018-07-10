@@ -24,7 +24,9 @@
   };
 
   /* Открытие блока с редактированием изображения */
-  var openPictureEditor = function () {
+  var openPictureEditor = function (fileUrl) {
+    previewPictureElement.src = fileUrl;
+    
     document.body.classList.add('modal-open');
     pictureEditorElement.classList.remove('hidden');
 
@@ -73,7 +75,7 @@
 
   var uploadFile = function () {
     uploadFileElement.addEventListener('change', function () {
-      window.readFile(uploadFileElement, previewPictureElement, openPictureEditor);
+      window.readFile(uploadFileElement, openPictureEditor);
     });
   };
 
