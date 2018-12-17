@@ -15,12 +15,12 @@
   var createComment = function (comment) {
     var commentElement = document.createElement('li');
     var userIconElement = document.createElement('img');
-    var commentText = document.createTextNode(comment);
+    var commentText = document.createTextNode(comment.message);
 
     commentElement.classList.add('social__comment', 'social__comment--text');
 
     userIconElement.classList.add('social__picture');
-    userIconElement.src = 'img/avatar-' + window.utils.getRandomInt(1, 6) + '.svg';
+    userIconElement.src = comment.avatar;
     userIconElement.alt = 'Аватар комментатора фотографии';
     userIconElement.width = USER_ICON_WIDTH;
     userIconElement.height = USER_ICON_HEIGHT;

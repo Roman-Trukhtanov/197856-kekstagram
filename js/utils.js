@@ -28,13 +28,6 @@
       return Math.max(min, Math.min(value, max));
     },
 
-    getFilteredArray: function (str, symbol) {
-      return str.split(symbol)
-        .filter(function (it) {
-          return it !== '';
-        });
-    },
-
     fillFragment: function (arr) {
       var fragment = document.createDocumentFragment();
 
@@ -43,6 +36,13 @@
       });
 
       return fragment;
+    },
+
+    getFilteredArray: function (str, symbol) {
+      return str.split(symbol)
+        .filter(function (it) {
+          return it !== '';
+        });
     },
 
     isFocusOnField: function (tagName) {
