@@ -1,9 +1,8 @@
 'use strict';
 
 (function () {
-  var LOAD_URL = 'https://js.dump.academy/kekstagram/data';
-  var UPLOAD_URL = 'https://js.dump.academy/kekstagram';
-  var TIMEOUT = 20000;
+  var LOAD_URL = 'https://javascript.pages.academy/kekstagram/data';
+  var UPLOAD_URL = 'https://javascript.pages.academy/kekstagram';
 
   var StatusNumber = {
     SUCCESSFUL: 200,
@@ -19,42 +18,48 @@
   statusMessagesMap[StatusNumber['BAD_REQUEST']] = 'Неправильный запрос';
   statusMessagesMap[StatusNumber['INTERNAL_SERVER_ERROR']] = 'Ошибка на стороне сервера';
 
-  var setupRequest = function (onLoad, onError) {
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
-    xhr.timeout = TIMEOUT;
+  var checkStatus = function (response) {
+    if (response.status >= StatusNumber.SUCCESSFUL && response.status < StatusNumber.REDIRECT) {
+      return response;
+    } else {
+      var messageError = (statusMessagesMap[response.status]) ||
+        'Cтатус ответа: ' + response.status + ' ' + response.statusText;
 
-    xhr.addEventListener('load', function () {
-      if (xhr.status === StatusNumber.SUCCESSFUL) {
-        onLoad(xhr.response);
-      } else {
-        onError('Cтатус ответа: ' + xhr.status + ' ' + xhr.statusText);
-      }
-    });
+      throw new Error(messageError);
+    }
+  };
 
-    xhr.addEventListener('error', function () {
-      var messageError = (statusMessagesMap[xhr.status]) || 'Cтатус ответа: ' + xhr.status + ' ' + xhr.statusText;
+  var toJSON = function (response) {
+    return response.json();
+  };
 
-      onError(messageError);
-    });
+  var getData = function () {
+    return fetch(LOAD_URL, {method: 'GET'})
+      .then(checkStatus);
+  };
 
-    xhr.addEventListener('timeout', function () {
-      onError('Запрос не успел выполниться за ' + xhr.timeout + ' мс');
-    });
-
-    return xhr;
+  var setData = function (data) {
+    return fetch(UPLOAD_URL, {method: 'POST', body: data})
+      .then(checkStatus);
   };
 
   var load = function (onLoad, onError) {
-    var xhr = setupRequest(onLoad, onError);
-    xhr.open('GET', LOAD_URL);
-    xhr.send();
+    getData()
+      .catch(function (err) {
+        err = err.toString().replace('Error:', '');
+        onError(err);
+      })
+      .then(toJSON)
+      .then(onLoad);
   };
 
   var upload = function (data, onLoad, onError) {
-    var xhr = setupRequest(onLoad, onError);
-    xhr.open('POST', UPLOAD_URL);
-    xhr.send(data);
+    setData(data)
+      .catch(function (err) {
+        err = err.toString().replace('Error:', '');
+        onError(err);
+      })
+      .then(onLoad);
   };
 
   window.backend = {
